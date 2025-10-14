@@ -29,24 +29,24 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install undetected-chromedriver selenium pandas
+          pip install selenium pandas
 
-      # 🧩 Optional: Check Chrome version
-      - name: Check Chrome version
+      # 🟢 Install Microsoft Edge and EdgeDriver
+      - name: Setup Edge
         run: |
-          chromium-browser --version
+          sudo apt update
+          sudo apt install -y microsoft-edge-stable
+          EDGE_VERSION=$(microsoft-edge --version | awk '{print $3}' | cut -d '.' -f1)
+          wget https://msedgedriver.azureedge.net/${EDGE_VERSION}.0/edgedriver_linux64.zip
+          unzip edgedriver_linux64.zip -d $HOME/edgedriver
+          export PATH=$PATH:$HOME/edgedriver
 
       - name: Run Scraper
         run: |
-          python scraper.py \
-            "${{ github.event.inputs.profile_url }}" \
-            "${{ github.event.inputs.start_date }}" \
-            "${{ github.event.inputs.end_date }}" \
-            "${{ github.event.inputs.username }}" \
-            "${{ github.event.inputs.password }}"
+          python scraper.py
 
       - name: Upload scraped CSV
         uses: actions/upload-artifact@v4
         with:
           name: scraped_data
-          path: scraped_data.csv
+          path: "*.csv"
