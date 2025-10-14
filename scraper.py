@@ -11,6 +11,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 sys.stdout.reconfigure(encoding='utf-8')
 def scrape_instagram(profile_url, start_date, end_date, username, password):
     # Generate output filename dynamically
@@ -57,7 +58,9 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
     # Click first post
     first_post_xpath = '/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[2]/div[1]/section/main/div/div/div[2]/div/div/div/div/div[1]/div[1]/a'
     try:
-        first_post = wait.until(EC.presence_of_element_located((By.XPATH, first_post_xpath)))
+        first_post = WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.XPATH, first_post_xpath))
+        )
         driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", first_post)
         time.sleep(5)
         driver.execute_script("arguments[0].click();", first_post)
