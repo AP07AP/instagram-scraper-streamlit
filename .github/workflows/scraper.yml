@@ -29,19 +29,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install undetected-chromedriver==3.5.5 selenium pandas
+          pip install undetected-chromedriver selenium pandas
 
-      # -------------------------------
-      # Install Chrome 141 to match driver
-      # -------------------------------
-      - name: Install Chrome 141
+      # 🧩 Optional: Check Chrome version
+      - name: Check Chrome version
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg2
-          wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_141.0.0.0-1_amd64.deb
-          sudo dpkg -i google-chrome-stable_141.0.0.0-1_amd64.deb || true
-          sudo apt-get install -f -y
-          google-chrome --version
+          chromium-browser --version
 
       - name: Run Scraper
         run: |
