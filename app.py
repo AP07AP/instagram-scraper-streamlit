@@ -8,7 +8,7 @@ import io
 import time
 
 # Your GitHub repo details
-REPO = "https://github.com/AP07AP/Instagram"
+REPO = "AP07AP/instagram-scraper-streamlit"
 WORKFLOW_ID = "scraper.yml"
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
 
