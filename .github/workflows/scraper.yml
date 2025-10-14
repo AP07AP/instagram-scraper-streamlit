@@ -31,19 +31,17 @@ jobs:
         run: |
           pip install undetected-chromedriver==3.5.5 selenium pandas
 
-      # 🧩 Fix Chrome / ChromeDriver version mismatch
-      - name: Fix Chrome version mismatch
-        run: |
-          pip install undetected-chromedriver==3.5.5
-          google-chrome --version || chromium-browser --version
-          python -m undetected_chromedriver --version
-
-      # 🛠 Optional: Pin Chrome version (if mismatch persists)
-      - name: Install specific Chrome version
+      # -------------------------------
+      # Install Chrome 141 to match driver
+      # -------------------------------
+      - name: Install Chrome 141
         run: |
           sudo apt-get update
-          sudo apt-get install -y google-chrome-stable=140.0.7339.0-1 || true
-          google-chrome --version || chromium-browser --version
+          sudo apt-get install -y wget gnupg2
+          wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_141.0.0.0-1_amd64.deb
+          sudo dpkg -i google-chrome-stable_141.0.0.0-1_amd64.deb || true
+          sudo apt-get install -f -y
+          google-chrome --version
 
       - name: Run Scraper
         run: |
