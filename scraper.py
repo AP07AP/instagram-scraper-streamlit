@@ -56,7 +56,6 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
 
     # Click first post
     first_post_xpath = '/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[2]/div[1]/section/main/div/div/div[2]/div/div/div/div/div[1]/div[1]/a'
-
     try:
         first_post = wait.until(EC.presence_of_element_located((By.XPATH, first_post_xpath)))
         driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", first_post)
@@ -66,44 +65,9 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
         time.sleep(3)
     except Exception as e:
         print(f"⚠️ Error clicking first post: {e}")
-        screenshot_path = "click_error.png"
-        driver.save_screenshot(screenshot_path)
-    
-        # Upload the screenshot to GitHub repo
-        import base64, requests, os
-    
-        GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-        REPO = "AP07AP/instagram-scraper-streamlit"
-        FILE_PATH = screenshot_path
-        BRANCH = "main"
-    
-        # Read the screenshot file
-        with open(FILE_PATH, "rb") as f:
-            content = base64.b64encode(f.read()).decode("utf-8")
-    
-        # Create or update the file in GitHub repo
-        api_url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
-        headers = {
-            "Authorization": f"Bearer {GITHUB_TOKEN}",
-            "Content-Type": "application/json",
-        }
-        data = {
-            "message": "Add error screenshot from scraper",
-            "content": content,
-            "branch": BRANCH
-        }
-    
-        response = requests.put(api_url, headers=headers, json=data)
-    
-        if response.status_code in [200, 201]:
-            print("📤 Screenshot uploaded to GitHub successfully!")
-        else:
-            print(f"❌ Failed to upload screenshot: {response.text}")
-    
+        driver.save_screenshot("click_error.png")
         driver.quit()
         return
-
-
 
     # Scrape posts
     data = []
