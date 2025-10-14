@@ -35,27 +35,13 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
-        pip install pandas selenium
+        pip install -r requirements.txt
 
     - name: Run scraper
-      run: |
-        python scraper.py "${{ github.event.inputs.profile_url }}" \
-                           "${{ github.event.inputs.start_date }}" \
-                           "${{ github.event.inputs.end_date }}" \
-                           "${{ github.event.inputs.username }}" \
-                           "${{ github.event.inputs.password }}"
+      run: python scraper.py "${{ github.event.inputs.profile_url }}" "${{ github.event.inputs.start_date }}" "${{ github.event.inputs.end_date }}" "${{ github.event.inputs.username }}" "${{ github.event.inputs.password }}"
 
     - name: Upload scraped CSV as artifact
-      run: |
-        # Find the CSV dynamically
-        set CSV_FILE=
-        for %f in (*_${{ github.event.inputs.profile_url.strip('/').split('/')[-1] }}.csv) do set CSV_FILE=%f
-        echo "CSV file found: %CSV_FILE%"
-        echo "::set-output name=file::%CSV_FILE%"
-      shell: cmd
-
-    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: scraped_data
-        path: ${{ steps.upload.outputs.file }}
+        path: "*.csv"
