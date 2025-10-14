@@ -59,7 +59,7 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
     try:
         first_post = wait.until(EC.presence_of_element_located((By.XPATH, first_post_xpath)))
         driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", first_post)
-        time.sleep(2)
+        time.sleep(5)
         driver.execute_script("arguments[0].click();", first_post)
         print("✅ Clicked first post")
         time.sleep(3)
