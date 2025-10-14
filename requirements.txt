@@ -1,3 +1,4 @@
 streamlit
 requests
 pandas
+selenium==4.14.0
