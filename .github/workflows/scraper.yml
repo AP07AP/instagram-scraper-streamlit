@@ -24,30 +24,31 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pandas selenium
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas selenium
 
-    - name: Run scraper
-      shell: pwsh
-      run: |
-        python scraper.py "${{ github.event.inputs.profile_url }}" `
-                             "${{ github.event.inputs.start_date }}" `
-                             "${{ github.event.inputs.end_date }}" `
-                             "${{ github.event.inputs.username }}" `
-                             "${{ github.event.inputs.password }}"
+      - name: Run scraper
+        shell: pwsh
+        run: >
+          python scraper.py
+          "${{ github.event.inputs.profile_url }}"
+          "${{ github.event.inputs.start_date }}"
+          "${{ github.event.inputs.end_date }}"
+          "${{ github.event.inputs.username }}"
+          "${{ github.event.inputs.password }}"
 
-    - name: Upload scraped CSV as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: scraped_data
-        path: '*.csv'
+      - name: Upload scraped CSV as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraped_data
+          path: scraped_data.csv
