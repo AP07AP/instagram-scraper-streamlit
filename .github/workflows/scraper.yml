@@ -38,6 +38,13 @@ jobs:
           google-chrome --version || chromium-browser --version
           python -m undetected_chromedriver --version
 
+      # 🛠 Optional: Pin Chrome version (if mismatch persists)
+      - name: Install specific Chrome version
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable=140.0.7339.0-1 || true
+          google-chrome --version || chromium-browser --version
+
       - name: Run Scraper
         run: |
           python scraper.py \
