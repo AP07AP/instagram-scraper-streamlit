@@ -22,7 +22,10 @@ def scrape_instagram_posts(profile_url, start_date, end_date, username, password
     chrome_options.add_argument("--window-size=1920,1080")
 
     chrome_options.binary_location = "/usr/bin/chromium-browser"
-    driver = uc.Chrome(options=chrome_options)
+
+    # --- ChromeDriver version compatibility fix ---
+    driver = uc.Chrome(options=chrome_options, version_main=140)
+
     wait = WebDriverWait(driver, 15)
     data = []
 
