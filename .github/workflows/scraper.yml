@@ -38,10 +38,5 @@ jobs:
         pip install pandas selenium streamlit
 
     - name: Run scraper
-      run: |
-        python scraper.py \
-          "${{ github.event.inputs.profile_url }}" \
-          "${{ github.event.inputs.start_date }}" \
-          "${{ github.event.inputs.end_date }}" \
-          "${{ github.event.inputs.username }}" \
-          "${{ github.event.inputs.password }}"
+      run: python scraper.py "${{ github.event.inputs.profile_url }}" "${{ github.event.inputs.start_date }}" "${{ github.event.inputs.end_date }}" "${{ github.event.inputs.username }}" "${{ github.event.inputs.password }}"
+
