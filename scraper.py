@@ -28,7 +28,7 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
     # Initialize Chrome driver
     service = Service()  # Add path if chromedriver not in PATH
     driver = webdriver.Chrome(service=service, options=chrome_options)
-    wait = webdriver.support.ui.WebDriverWait(driver, 15)
+    wait = WebDriverWait(driver, 15)
 
     # Login
     driver.get("https://www.instagram.com/")
