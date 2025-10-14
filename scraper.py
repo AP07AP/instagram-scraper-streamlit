@@ -58,22 +58,12 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
     first_post_xpath = '/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[2]/div[1]/section/main/div/div/div[2]/div/div/div/div/div[1]/div[1]/a'
 
     try:
-        print("🔄 Locating first post using class selector...")
-    
-        # Combine all classes with '.' (CSS selector format)
-        class_selector = ".x1i10hfl.xjbqb8w.x1ejq31n.x18oe1m7.x1sy0etr.xstzfhl.x972fbf.x10w94by.x1qhh985.x14e42zd.x9f619.x1ypdohk.xt0psk2.x3ct3a4.xdj266r.x14z9mp.xat24cr.x1lziwak.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz._a6hd"
-    
-        # Wait until at least one element with that full class set is present
-        first_post = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, class_selector)))
-    
-        # Scroll and click
+        first_post = wait.until(EC.presence_of_element_located((By.XPATH, first_post_xpath)))
         driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", first_post)
-        time.sleep(2)
+        time.sleep(5)
         driver.execute_script("arguments[0].click();", first_post)
-    
         print("✅ Clicked first post")
         time.sleep(3)
-    
     except Exception as e:
         print(f"⚠️ Error clicking first post: {e}")
         driver.save_screenshot("click_error.png")
