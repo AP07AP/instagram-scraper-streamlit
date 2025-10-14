@@ -1,20 +1,10 @@
-# ----------------------------------
-# app.py (Streamlit frontend)
-# ----------------------------------
 import streamlit as st
-import requests
-import pandas as pd
-import io
-import time
-
-# Your GitHub repo details
-REPO = "AP07AP/instagram-scraper-streamlit"
-WORKFLOW_ID = "scraper.yml"
-GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
+from scraper import scrape_instagram_posts
 
 st.title("📸 Instagram Scraper Dashboard")
 
-profile_url = st.text_input("Instagram Profile URL")
+# Inputs
+profile_url = st.text_input("Instagram Profile URL", "https://www.instagram.com/vangalapudianitha/")
 col1, col2 = st.columns(2)
 with col1:
     start_date = st.date_input("Start Date")
@@ -23,28 +13,24 @@ with col2:
 
 username = st.text_input("Instagram Username")
 password = st.text_input("Instagram Password", type="password")
+output_file = st.text_input("Output CSV File Name", "instagram_data.csv")
 
 if st.button("🚀 Run Scraper"):
-    st.info("Triggering GitHub Action...")
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
-    }
-    payload = {
-        "ref": "main",
-        "inputs": {
-            "profile_url": profile_url,
-            "start_date": str(start_date),
-            "end_date": str(end_date),
-            "username": username,
-            "password": password,
-        },
-    }
-    r = requests.post(
-        f"https://api.github.com/repos/{REPO}/actions/workflows/{WORKFLOW_ID}/dispatches",
-        headers=headers, json=payload
-    )
-    if r.status_code == 204:
-        st.success("✅ Workflow triggered successfully! Wait ~1–2 mins.")
-    else:
-        st.error(f"❌ Error triggering workflow: {r.text}")
+    with st.spinner("Scraping Instagram posts..."):
+        try:
+            df = scrape_instagram_posts(
+                profile_url=str(profile_url),
+                start_date=str(start_date),
+                end_date=str(end_date),
+                username=username,
+                password=password,
+                output_file=output_file
+            )
+            if not df.empty:
+                st.success(f"✅ Scraping completed! {len(df)} rows saved to {output_file}")
+                st.dataframe(df.head(10))
+                st.download_button("📥 Download CSV", df.to_csv(index=False), file_name=output_file)
+            else:
+                st.warning("⚠️ No data scraped for the given date range.")
+        except Exception as e:
+            st.error(f"❌ Error during scraping: {e}")
