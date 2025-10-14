@@ -35,15 +35,14 @@ jobs:
       - name: Setup Edge
         run: |
           sudo apt update
-          sudo apt install -y microsoft-edge-stable
+          sudo apt install -y microsoft-edge-stable unzip
           EDGE_VERSION=$(microsoft-edge --version | awk '{print $3}' | cut -d '.' -f1)
           wget https://msedgedriver.azureedge.net/${EDGE_VERSION}.0/edgedriver_linux64.zip
           unzip edgedriver_linux64.zip -d $HOME/edgedriver
           export PATH=$PATH:$HOME/edgedriver
 
       - name: Run Scraper
-        run: |
-          python scraper.py
+        run: python scraper.py
 
       - name: Upload scraped CSV
         uses: actions/upload-artifact@v4
