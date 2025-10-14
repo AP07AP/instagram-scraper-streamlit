@@ -55,32 +55,19 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
     time.sleep(5)
 
     # Click first post
-    # Click first post
     first_post_xpath = '/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[2]/div[1]/section/main/div/div/div[2]/div/div/div/div/div[1]/div[1]/a'
     try:
-        # Wait until the element is clickable, not just present
-        first_post = wait.until(EC.element_to_be_clickable((By.XPATH, first_post_xpath)))
-    
-        # Scroll into view
+        first_post = wait.until(EC.presence_of_element_located((By.XPATH, first_post_xpath)))
         driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", first_post)
-        time.sleep(3)  # give Instagram some time to render fully
-    
-        # Use ActionChains to click (more reliable in headless mode)
-        from selenium.webdriver.common.action_chains import ActionChains
-        actions = ActionChains(driver)
-        actions.move_to_element(first_post).click().perform()
-    
+        time.sleep(10)
+        driver.execute_script("arguments[0].click();", first_post)
         print("✅ Clicked first post")
-        time.sleep(3)
-    
+        time.sleep(10)
     except Exception as e:
         print(f"⚠️ Error clicking first post: {e}")
-        os.makedirs("screenshots", exist_ok=True)
-        screenshot_path = os.path.join("screenshots", "click_error.png")
-        driver.save_screenshot(screenshot_path)
+        driver.save_screenshot("click_error.png")
         driver.quit()
-        return screenshot_path
-
+        return
 
     # Scrape posts
     data = []
