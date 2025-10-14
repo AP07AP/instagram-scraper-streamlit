@@ -1,8 +1,17 @@
+# ----------------------------------
+# app.py (Streamlit frontend)
+# ----------------------------------
 import streamlit as st
+import requests
+import os
 from PIL import Image
-from scraper import scrape_instagram  # Make sure scraper.py returns screenshot path on error
 
-st.title("📸 Instagram Scraper Dashboard (Local Run)")
+# Your GitHub repo details
+REPO = "AP07AP/instagram-scraper-streamlit"
+WORKFLOW_ID = "scraper.yml"
+GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
+
+st.title("📸 Instagram Scraper Dashboard")
 
 profile_url = st.text_input("Instagram Profile URL")
 col1, col2 = st.columns(2)
@@ -15,18 +24,38 @@ username = st.text_input("Instagram Username")
 password = st.text_input("Instagram Password", type="password")
 
 if st.button("🚀 Run Scraper"):
-    st.info("Running scraper locally...")
-    screenshot_path = scrape_instagram(
-        profile_url,
-        str(start_date),
-        str(end_date),
-        username,
-        password
+    st.info("Triggering GitHub Action...")
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+    }
+    payload = {
+        "ref": "main",
+        "inputs": {
+            "profile_url": profile_url,
+            "start_date": str(start_date),
+            "end_date": str(end_date),
+            "username": username,
+            "password": password,
+        },
+    }
+
+    r = requests.post(
+        f"https://api.github.com/repos/{REPO}/actions/workflows/{WORKFLOW_ID}/dispatches",
+        headers=headers, json=payload
     )
 
-    if screenshot_path:
-        st.error("⚠️ Error clicking first post!")
-        img = Image.open(screenshot_path)
-        st.image(img, caption="Click Error Screenshot", use_column_width=True)
+    if r.status_code == 204:
+        st.success("✅ Workflow triggered successfully! Wait ~1–2 mins.")
+
+        # --- Check if screenshot exists after run ---
+        screenshot_path = "click_error.png"
+        if os.path.exists(screenshot_path):
+            st.error("⚠️ Error occurred while clicking the first post.")
+            img = Image.open(screenshot_path)
+            st.image(img, caption="Error Screenshot", use_column_width=True)
+        else:
+            st.success("🎉 No errors — everything worked fine!")
+
     else:
-        st.success("Scraper ran successfully! No errors.")
+        st.error(f"❌ Error triggering workflow: {r.text}")
