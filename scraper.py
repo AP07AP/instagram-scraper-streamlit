@@ -75,9 +75,11 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
     
     except Exception as e:
         print(f"⚠️ Error clicking first post: {e}")
-        driver.save_screenshot("click_error.png")
+        os.makedirs("screenshots", exist_ok=True)
+        screenshot_path = os.path.join("screenshots", "click_error.png")
+        driver.save_screenshot(screenshot_path)
         driver.quit()
-        return
+        return screenshot_path
 
 
     # Scrape posts
