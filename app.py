@@ -1,18 +1,8 @@
-# ----------------------------------
-# app.py (Streamlit frontend)
-# ----------------------------------
 import streamlit as st
-import requests
-import pandas as pd
-import io
-import time
+from PIL import Image
+from scraper import scrape_instagram  # Make sure scraper.py returns screenshot path on error
 
-# Your GitHub repo details
-REPO = "AP07AP/instagram-scraper-streamlit"
-WORKFLOW_ID = "scraper.yml"
-GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
-
-st.title("📸 Instagram Scraper Dashboard")
+st.title("📸 Instagram Scraper Dashboard (Local Run)")
 
 profile_url = st.text_input("Instagram Profile URL")
 col1, col2 = st.columns(2)
@@ -25,26 +15,18 @@ username = st.text_input("Instagram Username")
 password = st.text_input("Instagram Password", type="password")
 
 if st.button("🚀 Run Scraper"):
-    st.info("Triggering GitHub Action...")
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
-    }
-    payload = {
-        "ref": "main",
-        "inputs": {
-            "profile_url": profile_url,
-            "start_date": str(start_date),
-            "end_date": str(end_date),
-            "username": username,
-            "password": password,
-        },
-    }
-    r = requests.post(
-        f"https://api.github.com/repos/{REPO}/actions/workflows/{WORKFLOW_ID}/dispatches",
-        headers=headers, json=payload
+    st.info("Running scraper locally...")
+    screenshot_path = scrape_instagram(
+        profile_url,
+        str(start_date),
+        str(end_date),
+        username,
+        password
     )
-    if r.status_code == 204:
-        st.success("✅ Workflow triggered successfully! Wait ~1–2 mins.")
+
+    if screenshot_path:
+        st.error("⚠️ Error clicking first post!")
+        img = Image.open(screenshot_path)
+        st.image(img, caption="Click Error Screenshot", use_column_width=True)
     else:
-        st.error(f"❌ Error triggering workflow: {r.text}")
+        st.success("Scraper ran successfully! No errors.")
