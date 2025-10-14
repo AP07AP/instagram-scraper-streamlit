@@ -34,24 +34,14 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install pandas selenium
-
-    - name: Download Edge WebDriver
-      run: |
-        # Install latest Edge WebDriver automatically
-        Invoke-WebRequest -Uri "https://msedgedriver.azureedge.net/LATEST_RELEASE" -OutFile latest.txt
-        $version = Get-Content latest.txt
-        Invoke-WebRequest -Uri "https://msedgedriver.azureedge.net/$version/edgedriver_win64.zip" -OutFile "edgedriver.zip"
-        Expand-Archive edgedriver.zip -DestinationPath $Env:USERPROFILE\edgedriver
-        echo "PATH=$Env:USERPROFILE\edgedriver;$Env:PATH" >> $Env:GITHUB_ENV
+        pip install --upgrade pip
+        pip install pandas selenium streamlit
 
     - name: Run scraper
       run: |
-        python scraper.py "$env:PROFILE_URL" "$env:START_DATE" "$env:END_DATE" "$env:USERNAME" "$env:PASSWORD"
-      env:
-        PROFILE_URL: ${{ github.event.inputs.profile_url }}
-        START_DATE: ${{ github.event.inputs.start_date }}
-        END_DATE: ${{ github.event.inputs.end_date }}
-        USERNAME: ${{ github.event.inputs.username }}
-        PASSWORD: ${{ github.event.inputs.password }}
+        python scraper.py \
+          "${{ github.event.inputs.profile_url }}" \
+          "${{ github.event.inputs.start_date }}" \
+          "${{ github.event.inputs.end_date }}" \
+          "${{ github.event.inputs.username }}" \
+          "${{ github.event.inputs.password }}"
