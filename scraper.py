@@ -11,10 +11,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
+
 def scrape_instagram_posts(profile_url, start_date, end_date, username, password, output_file="scraped_data.csv"):
-    # -------------------------------
-    # Chrome options (headless for CI)
-    # -------------------------------
     chrome_options = uc.ChromeOptions()
     chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--disable-gpu")
@@ -23,13 +21,12 @@ def scrape_instagram_posts(profile_url, start_date, end_date, username, password
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--window-size=1920,1080")
 
-    # Chromium binary location on GitHub Actions
+    # Use system Chromium (for GitHub Actions)
     chrome_options.binary_location = "/usr/bin/chromium-browser"
 
-    # -------------------------------
-    # Launch Chrome with version compatibility
-    # -------------------------------
-    driver = uc.Chrome(options=chrome_options, version_main=141)
+    # ✅ Let undetected-chromedriver auto-handle ChromeDriver version
+    driver = uc.Chrome(options=chrome_options)
+
     wait = WebDriverWait(driver, 15)
     data = []
 
@@ -64,7 +61,6 @@ def scrape_instagram_posts(profile_url, start_date, end_date, username, password
             post_count += 1
             post_url = driver.current_url
 
-            # --- Date & Time ---
             try:
                 date_element = driver.find_element(By.XPATH, '//time')
                 datetime_str = date_element.get_attribute("datetime")
@@ -75,17 +71,14 @@ def scrape_instagram_posts(profile_url, start_date, end_date, username, password
                 datetime_obj = None
                 date_posted, time_posted = "Unknown", "Unknown"
 
-            # Stop scraping if older than start date
             if post_count > 3 and datetime_obj and datetime_obj.date() < start_dt.date():
                 break
 
-            # --- Likes ---
             try:
                 likes = driver.find_element(By.XPATH, '//section[2]/div/div/span/a/span/span').text
             except NoSuchElementException:
                 likes = "Hidden"
 
-            # --- Comments & Caption ---
             comments = []
             if datetime_obj and start_dt.date() <= datetime_obj.date() <= end_dt.date():
                 try:
@@ -104,7 +97,6 @@ def scrape_instagram_posts(profile_url, start_date, end_date, username, password
                     "Comment": comment
                 })
 
-            # --- Next post ---
             try:
                 next_btn = wait.until(EC.element_to_be_clickable(
                     (By.XPATH, '//button[contains(@class, "_abl-")]')
@@ -117,13 +109,13 @@ def scrape_instagram_posts(profile_url, start_date, end_date, username, password
     finally:
         driver.quit()
 
-    # --- Save CSV ---
     df = pd.DataFrame(data)
     df.to_csv(output_file, index=False, encoding="utf-8-sig")
     print(f"✅ Saved {len(df)} rows to {output_file}")
     return df
 
-# Run via CLI (GitHub Action)
+
+# Run via CLI (for GitHub Action)
 if __name__ == "__main__":
     import sys
     if len(sys.argv) != 6:
