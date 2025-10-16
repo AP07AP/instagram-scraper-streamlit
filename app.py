@@ -158,7 +158,7 @@ if "scraped_df" in st.session_state:
     df["Likes"] = df["Likes"].astype(str).str.replace(",", "").str.strip()
     df["Likes"] = pd.to_numeric(df["Likes"], errors="coerce").fillna(0)
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
-    df["Time"] = pd.to_datetime(df["Time"], format='%H:%M:%S', errors="coerce').dt.time
+    df["Time"] = pd.to_datetime(df["Time"], format='%H:%M:%S', errors="coerce").dt.time
     df["Comments"] = df["Comments"].replace("", pd.NA)  # Convert empty strings to NaN
 
     # -------------------------------
