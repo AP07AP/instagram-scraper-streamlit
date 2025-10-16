@@ -45,3 +45,10 @@ jobs:
       with:
         name: scraped_data
         path: "*.csv"
+
+    - name: Upload screenshot artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: click-error-screenshot
+        path: click_error.png
