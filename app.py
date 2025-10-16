@@ -172,29 +172,37 @@ if st.button("📑 Scrape & Get Report"):
         st.write(f"💬 **Total Comments:** {format_indian_number(total_comments)}")
 
     # -------------------------------
+    # -------------------------------
     # Explore Posts
     # -------------------------------
     st.markdown("## 📌 Explore Posts")
+    
     post_urls = df["URL"].unique().tolist()
-    selected_posts = st.multiselect("Select one or more posts", post_urls)
-
+    selected_posts = st.multiselect(
+        "🔗 Select one or more Posts (URLs)",
+        post_urls
+    )
+    
     if selected_posts:
+        multi_posts = df[df["URL"].isin(selected_posts)]
+    
+        st.subheader("📝 Selected Posts Details")
         for url in selected_posts:
-            post_data = df[df["URL"] == url]
-            first_row = post_data.iloc[0]
-
-            st.markdown(
-                f"**Caption:** {first_row['Caption']}  \n"
-                f"📅 {first_row['Date'].date()} 🕒 {first_row['Time']} ❤️ Likes: {format_indian_number(first_row['Likes'])}  \n"
-                f"🔗 [View Post]({url})"
-            )
-
-            # Show only non-empty comments
-            comments_only = post_data[post_data["Comments"].notna()].copy()
-            if not comments_only.empty:
-                st.dataframe(comments_only[["Comments"]].reset_index(drop=True))
-            else:
-                st.info("No comments available for this post.")
-
-    st.markdown("---")
-    st.success("✅ Report generated successfully!")
+            post_group = multi_posts[multi_posts["URL"] == url]
+            caption_row = post_group[post_group["Caption"].notna()]
+            if not caption_row.empty:
+                row = caption_row.iloc[0]
+                st.markdown(
+                    f"**Caption:** {row['Caption']}  \n"
+                    f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])}  \n"
+                    f"🔗 [View Post]({url})"
+                )
+    
+                # Show only non-empty comments
+                comments_only = post_group[post_group["Comments"].notna()].copy()
+                if not comments_only.empty:
+                    st.dataframe(comments_only[["Comments"]].reset_index(drop=True), use_container_width=True)
+                else:
+                    st.info("No comments available for this post.")
+    
+            st.markdown("---")
