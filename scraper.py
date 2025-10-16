@@ -4,14 +4,14 @@ import random
 import pandas as pd
 import sys
 from datetime import datetime
-# from selenium import webdriver
-from selenium.webdriver.common.by import By
-# from selenium.webdriver.chrome.service import Service
-# from selenium.webdriver.chrome.options import Options
+
 import undetected_chromedriver as uc
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 
 sys.stdout.reconfigure(encoding='utf-8')
 def scrape_instagram(profile_url, start_date, end_date, username, password):
