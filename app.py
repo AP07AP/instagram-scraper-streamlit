@@ -177,7 +177,46 @@ if "scraped_df" in st.session_state:
     df["Comments"] = df["Comments"].replace("", pd.NA)  # Convert empty strings to NaN
 
     # -------------------------------
-    # User Overview
+    # 🔹 Username-wise Summary Table
+    # -------------------------------
+    if "Username" in df.columns:
+        st.markdown("## 👥 Profile Comparison Summary")
+
+        summary_df = (
+            df.groupby("Username")
+            .agg(
+                Total_Posts=("URL", "nunique"),
+                Total_Likes=("Likes", "sum"),
+                Total_Comments=("Comments", lambda x: x.notna().sum())
+            )
+            .reset_index()
+        )
+
+        # Format numbers nicely
+        summary_df["Total_Likes"] = summary_df["Total_Likes"].apply(format_indian_number)
+        summary_df["Total_Comments"] = summary_df["Total_Comments"].apply(format_indian_number)
+
+        st.dataframe(summary_df, use_container_width=True)
+
+        # -------------------------------
+        # 🔽 Multiselect: Choose which users to explore
+        # -------------------------------
+        selected_users = st.multiselect(
+            "Select one or more profiles to view details",
+            options=summary_df["Username"].tolist()
+        )
+
+        if selected_users:
+            df = df[df["Username"].isin(selected_users)]
+        else:
+            st.info("Select profiles above to explore their posts and stats.")
+            st.stop()
+    else:
+        st.warning("Username column not found — cannot compare users.")
+        st.stop()
+
+    # -------------------------------
+    # User Overview (for selected users)
     # -------------------------------
     st.markdown("## User Overview")
     total_posts = df["URL"].nunique()
