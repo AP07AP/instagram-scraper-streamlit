@@ -51,6 +51,7 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
         return
 
     # Navigate to profile
+    time.sleep(10)
     driver.get(profile_url)
     print("✅ Profile page loaded")
     time.sleep(5)
