@@ -35,7 +35,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Streamlit text area
-profile_urls_input = st.text_area(
+profile_url = st.text_area(
     "Enter one or more Instagram Profile URLs (comma-separated or one per line)",
     height=25,
     placeholder="https://www.instagram.com/user1/"
