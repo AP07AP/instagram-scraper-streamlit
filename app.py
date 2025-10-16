@@ -26,7 +26,7 @@ st.title("📸 Instagram Scraper Dashboard")
 # -------------------------------
 profile_urls_input = st.text_area(
     "Enter one or more Instagram Profile URLs (comma-separated or one per line)",
-    height=60
+    height=30
 )
 col1, col2 = st.columns(2)
 with col1:
