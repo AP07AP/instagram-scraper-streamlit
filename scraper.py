@@ -70,6 +70,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None, password=
     time.sleep(5)
 
     # Click first post
+    # Click first post
     first_post_xpath = '/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[2]/div[1]/section/main/div/div/div[2]/div/div/div/div/div[1]/div[1]/a'
     try:
         first_post = WebDriverWait(driver, 20).until(
@@ -80,6 +81,23 @@ def scrape_instagram(profile_url, start_date, end_date, username=None, password=
         driver.execute_script("arguments[0].click();", first_post)
         print("✅ Clicked first post")
         time.sleep(3)
+    
+        # --- Handle "Login again" popup if it appears ---
+        try:
+            relogin_popup = WebDriverWait(driver, 8).until(
+                EC.presence_of_element_located((By.XPATH, '/html/body/div[5]/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div[2]/div/div'))
+            )
+            print("🔐 'Login again' popup detected — logging in again...")
+            username_input = driver.find_element(By.NAME, "username")
+            password_input = driver.find_element(By.NAME, "password")
+            username_input.send_keys(username)
+            password_input.send_keys(password)
+            driver.find_element(By.XPATH, '//button[@type="submit"]').click()
+            print("✅ Logged in again successfully")
+            time.sleep(7)
+        except Exception:
+            print("✅ No re-login popup detected, continuing...")
+    
     except Exception as e:
         print(f"⚠️ Error clicking first post: {e}")
         driver.save_screenshot("click_error.png")
