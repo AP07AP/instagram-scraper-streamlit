@@ -68,7 +68,7 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
 
     # Wait for artifact to appear (max 2 mins)
     artifact_found = False
-    for _ in range(20):
+    for _ in range(600):
         artifacts = requests.get(f"https://api.github.com/repos/{repo}/actions/artifacts", headers=headers).json().get("artifacts", [])
         if any(a["name"] == artifact_name for a in artifacts):
             artifact_found = True
