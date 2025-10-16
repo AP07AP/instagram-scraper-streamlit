@@ -28,7 +28,7 @@ st.title("📸 Instagram Scraper Dashboard")
 # Streamlit text area
 profile_url = st.text_area(
     "Enter one or more Instagram Profile URLs (comma-separated or one per line)",
-    height=20,
+    height=15,
     placeholder="https://www.instagram.com/user1/"
 )
 col1, col2 = st.columns(2)
