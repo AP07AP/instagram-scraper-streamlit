@@ -4,10 +4,11 @@ import random
 import pandas as pd
 import sys
 from datetime import datetime
-from selenium import webdriver
+# from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.chrome.service import Service
+# from selenium.webdriver.chrome.options import Options
+import undetected_chromedriver as uc
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -30,8 +31,9 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
     chrome_options.add_argument("--window-size=1920,1080")
 
     # Initialize Chrome driver
-    service = Service()  # Add path if chromedriver not in PATH
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+    # service = Service()  # Add path if chromedriver not in PATH
+    # driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver = uc.Chrome(options=chrome_options)
     wait = WebDriverWait(driver, 15)
 
     # Login
