@@ -173,13 +173,15 @@ def scrape_instagram(profile_url, start_date, end_date, username=None, password=
 
             # Save post data
             first_row = True
-            for comment in all_comments_data:
+            for comment in all_comments_data[1:]:
                 data.append({
-                    "Post_Number": post_count if first_row else "",
-                    "URL": post_url if first_row else "",
+                    "username": profile_url.split("/")[-2],
+                    "Post_Number": post_count,
+                    "URL": post_url,
                     "Date": date_posted if first_row else "",
                     "Time": time_posted if first_row else "",
                     "Likes": likes if first_row else "",
+                    "Caption" all_comments_data[0] if first_row else "",
                     "Comment": comment
                 })
                 first_row = False
