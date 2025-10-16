@@ -48,7 +48,7 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
         driver.find_element(By.XPATH, '//button[@type="submit"]').click()
         print("✅ Logged into Instagram")
         time.sleep(10)
-        driver.save_screenshot("click_error.png")
+        driver.save_screenshot("click_error1.png")
     except Exception as e:
         print(f"⚠️ Login error: {e}")
         driver.quit()
