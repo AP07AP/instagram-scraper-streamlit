@@ -181,7 +181,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None, password=
                     "Date": date_posted if first_row else "",
                     "Time": time_posted if first_row else "",
                     "Likes": likes if first_row else "",
-                    "Caption" all_comments_data[0] if first_row else "",
+                    "Caption": all_comments_data[0] if first_row else "",
                     "Comment": comment
                 })
                 first_row = False
