@@ -24,7 +24,9 @@ st.title("📸 Instagram Scraper Dashboard")
 # -------------------------------
 # Scraper Inputs
 # -------------------------------
-profile_url = st.text_input("Instagram Profile URL")
+profile_urls_input = st.text_area(
+    "Enter one or more Instagram Profile URLs (comma-separated or one per line)"
+)
 col1, col2 = st.columns(2)
 with col1:
     start_date = st.date_input("Start Date")
@@ -100,7 +102,7 @@ if st.button("📑 Scrape & Get Report"):
     payload = {
         "ref": "main",
         "inputs": {
-            "profile_url": profile_url,
+            "profile_url": ",".join([p.strip() for p in profile_urls_input.replace("\n", ",").split(",") if p.strip()]),
             "start_date": str(start_date),
             "end_date": str(end_date),
             "username": username,
