@@ -28,8 +28,8 @@ def scrape_instagram(profile_url, start_date, end_date, username=None, password=
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--start-maximized")
-    # chrome_options.add_argument("--headless=new")
-    # chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
 
     # Initialize Chrome driver
@@ -44,29 +44,22 @@ def scrape_instagram(profile_url, start_date, end_date, username=None, password=
     time.sleep(5)
 
     # ------------------------
-    # Login via hardcoded cookies
     # ------------------------
+    # Login with username & password
+    # ------------------------
+    driver.get("https://www.instagram.com/")
+    print("🔄 Opening Instagram...")
+    
     try:
-        cookies = [
-            {"name": "csrftoken", "value": "JM74RFOI3SOzR0847ZvMfa", "domain": ".instagram.com", "path": "/"},
-            {"name": "datr", "value": "BYzwaMODPk1FrOWDRvKdP-MI", "domain": ".instagram.com", "path": "/"},
-            {"name": "dpr", "value": "1.25", "domain": ".instagram.com", "path": "/"},
-            {"name": "ds_user_id", "value": "72782729777", "domain": ".instagram.com", "path": "/"},
-            {"name": "ig_did", "value": "356B55F2-C173-46CA-BF6B-B6A34260D7AD", "domain": ".instagram.com", "path": "/"},
-            {"name": "mid", "value": "aPCMBQALAAEuhO8RpUZ7vfEg8cCZ", "domain": ".instagram.com", "path": "/"},
-            {"name": "rur", "value": "CCO\\05472782729777\\0541792131869:01feccbaf5bbb344e623bb3462b45e3e711226a1191f39d817c41c591eba77cb6af61eb8", "domain": ".instagram.com", "path": "/"},
-            {"name": "sessionid", "value": "72782729777%3AF944hli7Nm0cqZ%3A3%3AAYirZZzEwr-3wGecDWp2x4T96GPfKuxnXT4JkpsneA", "domain": ".instagram.com", "path": "/"},
-            {"name": "wd", "value": "679x730", "domain": ".instagram.com", "path": "/"}
-        ]
-
-        for cookie in cookies:
-            driver.add_cookie(cookie)
-
-        driver.refresh()
-        time.sleep(5)
-        print("✅ Logged in via hardcoded cookies, no CAPTCHA!")
+        username_input = wait.until(EC.presence_of_element_located((By.NAME, "username")))
+        password_input = driver.find_element(By.NAME, "password")
+        username_input.send_keys(username)
+        password_input.send_keys(password)
+        driver.find_element(By.XPATH, '//button[@type="submit"]').click()
+        print("✅ Logged into Instagram")
+        time.sleep(7)
     except Exception as e:
-        print(f"⚠️ Error loading cookies: {e}")
+        print(f"⚠️ Login error: {e}")
         driver.quit()
         return
 
