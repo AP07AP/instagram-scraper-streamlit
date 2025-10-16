@@ -37,7 +37,7 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
     wait = WebDriverWait(driver, 15)
 
     # Login
-    time.sleep(10)
+    # time.sleep(10)
     driver.get("https://www.instagram.com/")
     print("🔄 Opening Instagram...")
     try:
@@ -73,7 +73,7 @@ def scrape_instagram(profile_url, start_date, end_date, username, password):
         time.sleep(3)
     except Exception as e:
         print(f"⚠️ Error clicking first post: {e}")
-        driver.save_screenshot("click_error.png")
+        # driver.save_screenshot("click_error.png")
         driver.quit()
         return
 
