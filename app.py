@@ -1,3 +1,88 @@
+# ----------------------------------
+# app.py (Streamlit frontend)
+# ----------------------------------
+import streamlit as st
+import requests
+import pandas as pd
+import time
+from io import BytesIO
+from zipfile import ZipFile
+
+# -------------------------------
+# GitHub Repo Details
+# -------------------------------
+REPO = "AP07AP/instagram-scraper-streamlit"
+WORKFLOW_ID = "scraper.yml"
+GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
+ARTIFACT_NAME = "scraped_data"  # Must match uploaded artifact name
+
+# -------------------------------
+# Dashboard Title
+# -------------------------------
+st.title("📸 Instagram Scraper Dashboard")
+
+# -------------------------------
+# Scraper Inputs
+# -------------------------------
+profile_url = st.text_input("Instagram Profile URL")
+col1, col2 = st.columns(2)
+with col1:
+    start_date = st.date_input("Start Date")
+with col2:
+    end_date = st.date_input("End Date")
+
+username = st.text_input("Instagram Username")
+password = st.text_input("Instagram Password", type="password")
+
+# -------------------------------
+# Function to fetch latest artifact CSV
+# -------------------------------
+def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
+    headers = {"Authorization": f"Bearer {token}"}
+    artifacts_url = f"https://api.github.com/repos/{repo}/actions/artifacts"
+    r = requests.get(artifacts_url, headers=headers)
+    if r.status_code != 200:
+        st.error("Failed to fetch artifacts.")
+        return None
+
+    artifacts = r.json().get("artifacts", [])
+    artifact = next((a for a in artifacts if a["name"] == artifact_name), None)
+    if not artifact:
+        st.warning(f"No artifact named '{artifact_name}' found.")
+        return None
+
+    download_url = artifact["archive_download_url"]
+    r = requests.get(download_url, headers=headers)
+    if r.status_code != 200:
+        st.error("Failed to download artifact.")
+        return None
+
+    zipfile = ZipFile(BytesIO(r.content))
+    csv_filename = zipfile.namelist()[0]
+    with zipfile.open(csv_filename) as f:
+        df = pd.read_csv(f)
+    return df
+
+# -------------------------------
+# Helper: Indian number format
+# -------------------------------
+def format_indian_number(number):
+    try:
+        s = str(int(number))
+    except:
+        return "0"
+    if len(s) <= 3:
+        return s
+    last3 = s[-3:]
+    remaining = s[:-3]
+    parts = []
+    while len(remaining) > 2:
+        parts.append(remaining[-2:])
+        remaining = remaining[:-2]
+    if remaining:
+        parts.append(remaining)
+    return ','.join(reversed(parts)) + ',' + last3
+
 # -------------------------------
 # Scrape & Store Data
 # -------------------------------
@@ -7,8 +92,7 @@ if st.button("📑 Scrape & Get Report"):
         st.stop()
 
     st.info("Triggering scraper workflow...")
-    
-    # Trigger workflow (same as before)
+
     headers = {
         "Accept": "application/vnd.github+json",
         "Authorization": f"Bearer {GITHUB_TOKEN}",
@@ -33,11 +117,11 @@ if st.button("📑 Scrape & Get Report"):
         st.error(f"Failed to trigger workflow: {r.text}")
         st.stop()
 
-    st.info("Waiting for workflow to finish (~10 mins)...")
+    st.info("Waiting for workflow to finish (~10 mins max)...")
 
-    # Poll workflow
+    # Poll workflow until completed
     workflow_completed = False
-    max_polls = 100
+    max_polls = 100  # 100 x 6s = ~10 mins
     for _ in range(max_polls):
         runs = requests.get(
             f"https://api.github.com/repos/{REPO}/actions/workflows/{WORKFLOW_ID}/runs",
@@ -64,7 +148,6 @@ if st.button("📑 Scrape & Get Report"):
     # Store in session state
     st.session_state["scraped_df"] = df
 
-
 # -------------------------------
 # Post-explorer (persistent across reruns)
 # -------------------------------
@@ -76,7 +159,7 @@ if "scraped_df" in st.session_state:
     df["Likes"] = pd.to_numeric(df["Likes"], errors="coerce").fillna(0)
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
     df["Time"] = pd.to_datetime(df["Time"], format='%H:%M:%S', errors="coerce').dt.time
-    df["Comments"] = df["Comments"].replace("", pd.NA)
+    df["Comments"] = df["Comments"].replace("", pd.NA)  # Convert empty strings to NaN
 
     # -------------------------------
     # User Overview
@@ -125,3 +208,26 @@ if "scraped_df" in st.session_state:
                     st.info("No comments available for this post.")
 
             st.markdown("---")
+
+        # -------------------------------
+        # Download Button for Selected Posts
+        # -------------------------------
+        download_df = multi_posts.copy()
+        download_df["Likes"] = download_df["Likes"].astype(int)
+        csv_bytes = download_df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="📥 Download Selected Posts as CSV",
+            data=csv_bytes,
+            file_name="selected_posts_report.csv",
+            mime="text/csv"
+        )
+
+    else:
+        # Download full scraped data if no post selected
+        csv_bytes = df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="📥 Download Full Scraped Data as CSV",
+            data=csv_bytes,
+            file_name="full_scraped_report.csv",
+            mime="text/csv"
+        )
