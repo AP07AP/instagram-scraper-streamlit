@@ -19,7 +19,7 @@ on:
         description: 'Instagram Password'
         required: true
       artifact_name:
-        description: 'Unique artifact name for this run'
+        description: 'Unique artifact name to store CSV'
         required: true
 
 jobs:
@@ -55,7 +55,7 @@ jobs:
       with:
         name: click-error-screenshot
         path: click_error.png
-        
+
     - name: Upload second screenshot artifact
       if: always()
       uses: actions/upload-artifact@v4
