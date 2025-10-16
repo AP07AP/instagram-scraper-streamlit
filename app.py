@@ -115,7 +115,7 @@ if st.button("📑 Scrape & Get Report"):
     payload = {
         "ref": "main",
         "inputs": {
-            "profile_url": ",".join([p.strip() for p in profile_urls_input.replace("\n", ",").split(",") if p.strip()]),
+            "profile_url": ",".join([p.strip() for p in profile_url.replace("\n", ",").split(",") if p.strip()]),
             "start_date": str(start_date),
             "end_date": str(end_date),
             "username": username,
