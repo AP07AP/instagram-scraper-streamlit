@@ -141,10 +141,10 @@ if st.button("🕸️ Scrape Data"):
         st.error(f"❌ Failed to trigger workflow: {r.text}")
         st.stop()
 
-    st.info("⏳ Waiting for workflow to complete (up to 10 mins)...")
+    st.info("⏳ Waiting for workflow to complete (up to 5 mins)...")
 
     workflow_completed = False
-    for _ in range(100):  # ~10 mins
+    for _ in range(600):  # ~10 mins
         runs = requests.get(f"https://api.github.com/repos/{REPO}/actions/workflows/{WORKFLOW_ID}/runs", headers=headers).json()
         latest_run = runs.get("workflow_runs", [None])[0]
         if latest_run and latest_run.get("status") == "completed":
@@ -153,7 +153,7 @@ if st.button("🕸️ Scrape Data"):
         time.sleep(6)
 
     if workflow_completed:
-        st.success("✅ Scraping completed successfully!")
+        st.success("🔄 Scraping in progress...")
         st.session_state["scrape_done"] = True
     else:
         st.error("❌ Workflow timed out.")
