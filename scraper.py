@@ -211,11 +211,56 @@ def scrape_instagram(profile_url, start_date, end_date, username=None, password=
     print("\n✅ Scraping completed successfully!")
 
 # -------------------------
-# CLI Run
+# CLI Run (multi-profile, single output file)
 # -------------------------
 if __name__ == "__main__":
     import sys
+    import os
+
     if len(sys.argv) != 6:
-        print("Usage: python scraper.py <profile_url> <start_date> <end_date> <username> <password>")
+        print("Usage: python scraper.py <profile_url(s) comma-separated> <start_date> <end_date> <username> <password>")
+        print("Example: python scraper.py \"https://www.instagram.com/user1/,https://www.instagram.com/user2/\" 2025-10-01 2025-10-15 myuser mypass")
         sys.exit(1)
-    scrape_instagram(*sys.argv[1:])
+
+    profiles_arg = sys.argv[1]
+    start_date = sys.argv[2]
+    end_date = sys.argv[3]
+    username = sys.argv[4]
+    password = sys.argv[5]
+
+    profiles = [p.strip() for p in profiles_arg.split(",") if p.strip()]
+
+    if not profiles:
+        print("⚠️ No profiles provided.")
+        sys.exit(1)
+
+    # Master DataFrame for all profiles
+    combined_df = pd.DataFrame()
+
+    for profile in profiles:
+        print(f"\n===== Scraping profile: {profile} =====")
+        try:
+            # Run scraper and get the output file path (temp)
+            scrape_instagram(profile, start_date, end_date, username, password)
+
+            # Each call saves to a CSV, so load that and append, then delete
+            start_str = datetime.strptime(start_date, "%Y-%m-%d").strftime("%m-%d")
+            end_str = datetime.strptime(end_date, "%Y-%m-%d").strftime("%m-%d")
+            insta_user = profile.strip("/").split("/")[-1]
+            temp_file = f"{start_str}_{end_str}_{insta_user}.csv"
+
+            if os.path.exists(temp_file):
+                temp_df = pd.read_csv(temp_file, encoding="utf-8-sig")
+                combined_df = pd.concat([combined_df, temp_df], ignore_index=True)
+                os.remove(temp_file)  # delete individual profile file
+        except Exception as e:
+            print(f"⚠️ Error scraping {profile}: {e}")
+            continue
+
+    # Save only one combined file
+    if not combined_df.empty:
+        combined_filename = f"{start_str}_{end_str}_combined.csv"
+        combined_df.to_csv(combined_filename, index=False, encoding="utf-8-sig")
+        print(f"\n✅ All profiles data combined and saved to {combined_filename} (Rows: {len(combined_df)})")
+    else:
+        print("⚠️ No data scraped from any profile.")
