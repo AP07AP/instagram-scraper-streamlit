@@ -51,7 +51,7 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
         return None
 
     artifacts = r.json().get("artifacts", [])
-    artifact = next((a for a in artifacts if a["name"] == artifact_name), None)
+    artifact = next((a for a in sorted(artifacts, key=lambda x: x["created_at"], reverse=True) if a["name"] == artifact_name), None)
     if not artifact:
         st.warning(f"No artifact named '{artifact_name}' found.")
         return None
