@@ -118,17 +118,18 @@ if st.button("📑 Scrape & Get Report"):
         st.error(f"Failed to trigger workflow: {r.text}")
         st.stop()
 
-    st.info("Scraper triggered. Waiting for workflow to finish (~1–2 mins)...")
+    st.info("Scraper triggered. Waiting for workflow to finish (~10 mins max)...")
 
-    # 2️⃣ Poll workflow until completed
+    # 2️⃣ Poll workflow until completed (10 minutes max)
     workflow_completed = False
-    for _ in range(30):  # ~3 minutes max
+    max_polls = 100  # 100 polls x 6 sec = ~10 min
+    for _ in range(max_polls):
         runs = requests.get(
             f"https://api.github.com/repos/{REPO}/actions/workflows/{WORKFLOW_ID}/runs",
             headers=headers
         ).json()
-        latest_run = runs["workflow_runs"][0]
-        if latest_run["status"] == "completed":
+        latest_run = runs.get("workflow_runs", [None])[0]
+        if latest_run and latest_run.get("status") == "completed":
             workflow_completed = True
             break
         time.sleep(6)
@@ -145,25 +146,23 @@ if st.button("📑 Scrape & Get Report"):
         st.warning("No data found in artifact.")
         st.stop()
 
-    # 4️⃣ Process CSV
+    # -------------------------------
+    # Process CSV
+    # -------------------------------
     df["Likes"] = df["Likes"].astype(str).str.replace(",", "").str.strip()
     df["Likes"] = pd.to_numeric(df["Likes"], errors="coerce").fillna(0)
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
     df["Time"] = pd.to_datetime(df["Time"], format='%H:%M:%S', errors="coerce").dt.time
-
-    filtered = df[(df["Date"] >= pd.to_datetime(start_date)) & (df["Date"] <= pd.to_datetime(end_date))]
-
-    if filtered.empty:
-        st.warning("No data found in selected date range.")
-        st.stop()
+    df["Comments"] = df["Comments"].replace("", pd.NA)  # Convert empty strings to NaN
 
     # -------------------------------
     # User Overview
     # -------------------------------
     st.markdown("## User Overview")
-    total_posts = filtered["URL"].nunique()
-    total_likes = filtered["Likes"].sum()
-    total_comments = filtered["Comments"].notna().sum()
+    total_posts = df["URL"].nunique()
+    total_likes = df["Likes"].sum()
+    total_comments = df["Comments"].notna().sum()
+
     col1, col2, col3 = st.columns(3)
     with col1:
         st.write(f"📄 **Total Posts:** {format_indian_number(total_posts)}")
@@ -176,12 +175,12 @@ if st.button("📑 Scrape & Get Report"):
     # Explore Posts
     # -------------------------------
     st.markdown("## 📌 Explore Posts")
-    post_urls = filtered["URL"].unique().tolist()
+    post_urls = df["URL"].unique().tolist()
     selected_posts = st.multiselect("Select one or more posts", post_urls)
 
     if selected_posts:
         for url in selected_posts:
-            post_data = filtered[filtered["URL"] == url]
+            post_data = df[df["URL"] == url]
             first_row = post_data.iloc[0]
 
             st.markdown(
@@ -190,7 +189,8 @@ if st.button("📑 Scrape & Get Report"):
                 f"🔗 [View Post]({url})"
             )
 
-            comments_only = post_data[post_data["Comments"].notna()]
+            # Show only non-empty comments
+            comments_only = post_data[post_data["Comments"].notna()].copy()
             if not comments_only.empty:
                 st.dataframe(comments_only[["Comments"]].reset_index(drop=True))
             else:
