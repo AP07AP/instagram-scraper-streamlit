@@ -14,7 +14,7 @@ from zipfile import ZipFile
 REPO = "AP07AP/instagram-scraper-streamlit"
 WORKFLOW_ID = "scraper.yml"
 GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
-ARTIFACT_NAME = "scraped_data"  # Must match uploaded artifact name
+ARTIFACT_NAME = "scraped_data"
 
 # -------------------------------
 # Dashboard Title
@@ -24,8 +24,6 @@ st.title("📸 Instagram Scraper Dashboard")
 # -------------------------------
 # Scraper Inputs
 # -------------------------------
-# Custom CSS to set minimum height
-# Streamlit text area
 profile_url = st.text_area(
     "Enter one or more Instagram Profile URLs (comma-separated or one per line)",
     height=20,
@@ -36,37 +34,9 @@ with col1:
     start_date = st.date_input("Start Date")
 with col2:
     end_date = st.date_input("End Date")
-   
+
 username = st.text_input("Instagram Username")
 password = st.text_input("Instagram Password", type="password")
-# -------------------------------
-# Function to fetch latest artifact CSV
-# -------------------------------
-def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
-    headers = {"Authorization": f"Bearer {token}"}
-    artifacts_url = f"https://api.github.com/repos/{repo}/actions/artifacts"
-    r = requests.get(artifacts_url, headers=headers)
-    if r.status_code != 200:
-        st.error("Failed to fetch artifacts.")
-        return None
-
-    artifacts = r.json().get("artifacts", [])
-    artifact = next((a for a in artifacts if a["name"] == artifact_name), None)
-    if not artifact:
-        st.warning(f"No artifact named '{artifact_name}' found.")
-        return None
-
-    download_url = artifact["archive_download_url"]
-    r = requests.get(download_url, headers=headers)
-    if r.status_code != 200:
-        st.error("Failed to download artifact.")
-        return None
-
-    zipfile = ZipFile(BytesIO(r.content))
-    csv_filename = zipfile.namelist()[0]
-    with zipfile.open(csv_filename) as f:
-        df = pd.read_csv(f)
-    return df
 
 # -------------------------------
 # Helper: Indian number format
@@ -88,24 +58,58 @@ def format_indian_number(number):
         parts.append(remaining)
     return ','.join(reversed(parts)) + ',' + last3
 
+
 # -------------------------------
-# Scrape & Store Data
+# Function to fetch latest artifact CSV
 # -------------------------------
-if st.button("📑 Scrape & Get Report"):
+def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
+    headers = {"Authorization": f"Bearer {token}"}
+    artifacts_url = f"https://api.github.com/repos/{repo}/actions/artifacts"
+    r = requests.get(artifacts_url, headers=headers)
+    if r.status_code != 200:
+        st.error("❌ Failed to fetch artifacts.")
+        return None
+
+    artifacts = r.json().get("artifacts", [])
+    artifact = next((a for a in artifacts if a["name"] == artifact_name), None)
+    if not artifact:
+        st.warning(f"No artifact named '{artifact_name}' found.")
+        return None
+
+    download_url = artifact["archive_download_url"]
+    r = requests.get(download_url, headers=headers)
+    if r.status_code != 200:
+        st.error("❌ Failed to download artifact.")
+        return None
+
+    zipfile = ZipFile(BytesIO(r.content))
+    csv_filename = zipfile.namelist()[0]
+    with zipfile.open(csv_filename) as f:
+        df = pd.read_csv(f)
+    return df
+
+
+# -------------------------------
+# SCRAPE BUTTON
+# -------------------------------
+if st.button("🕸️ Scrape Data"):
     if not profile_url or not username or not password:
-        st.warning("Please fill all the inputs.")
+        st.warning("⚠️ Please fill all fields before scraping.")
         st.stop()
 
-    st.info("Triggering scraper workflow...")
+    st.info("🚀 Triggering scraper workflow...")
 
     headers = {
         "Accept": "application/vnd.github+json",
         "Authorization": f"Bearer {GITHUB_TOKEN}",
     }
+
     payload = {
         "ref": "main",
         "inputs": {
-            "profile_url": ",".join([p.strip() for p in profile_url.replace("\n", ",").split(",") if p.strip()]),
+            "profile_url": ",".join(
+                [p.strip() for p in profile_url.replace("\n", ",").split(",") if p.strip()]
+            ),
             "start_date": str(start_date),
             "end_date": str(end_date),
             "username": username,
@@ -116,21 +120,21 @@ if st.button("📑 Scrape & Get Report"):
     r = requests.post(
         f"https://api.github.com/repos/{REPO}/actions/workflows/{WORKFLOW_ID}/dispatches",
         headers=headers,
-        json=payload
+        json=payload,
     )
+
     if r.status_code != 204:
-        st.error(f"Failed to trigger workflow: {r.text}")
+        st.error(f"❌ Failed to trigger workflow: {r.text}")
         st.stop()
 
-    st.info("Waiting for workflow to finish (~10 mins max)...")
+    st.info("⏳ Waiting for workflow to complete (up to 10 mins)...")
 
-    # Poll workflow until completed
+    # Poll workflow status
     workflow_completed = False
-    max_polls = 100  # 100 x 6s = ~10 mins
-    for _ in range(max_polls):
+    for _ in range(100):  # 100 * 6 = ~10 mins
         runs = requests.get(
             f"https://api.github.com/repos/{REPO}/actions/workflows/{WORKFLOW_ID}/runs",
-            headers=headers
+            headers=headers,
         ).json()
         latest_run = runs.get("workflow_runs", [None])[0]
         if latest_run and latest_run.get("status") == "completed":
@@ -138,140 +142,108 @@ if st.button("📑 Scrape & Get Report"):
             break
         time.sleep(6)
 
-    if not workflow_completed:
-        st.error("Workflow did not complete in time. Try again later.")
-        st.stop()
+    if workflow_completed:
+        st.success("✅ Scraping completed successfully!")
+        st.session_state["scrape_done"] = True
+    else:
+        st.error("❌ Workflow timed out or did not complete in time.")
+        st.session_state["scrape_done"] = False
 
-    st.success("✅ Scraper finished! Fetching data...")
-
-    # Fetch artifact
-    df = fetch_artifact_csv(REPO, GITHUB_TOKEN)
-    if df is None or df.empty:
-        st.warning("No data found in artifact.")
-        st.stop()
-
-    # Store in session state
-    st.session_state["scraped_df"] = df
 
 # -------------------------------
-# Post-explorer (persistent across reruns)
+# REPORT BUTTON (enabled only after scrape)
+# -------------------------------
+if st.session_state.get("scrape_done", False):
+    if st.button("📊 Get Report"):
+        st.info("📦 Fetching the latest scraped data...")
+
+        df = fetch_artifact_csv(REPO, GITHUB_TOKEN)
+        if df is None or df.empty:
+            st.warning("⚠️ No data found in artifact.")
+            st.stop()
+
+        st.session_state["scraped_df"] = df
+        st.success("✅ Data loaded successfully!")
+
+# -------------------------------
+# DISPLAY REPORT (if data loaded)
 # -------------------------------
 if "scraped_df" in st.session_state:
     df = st.session_state["scraped_df"]
 
-    # Process CSV
+    # Clean up data
     df["Likes"] = df["Likes"].astype(str).str.replace(",", "").str.strip()
     df["Likes"] = pd.to_numeric(df["Likes"], errors="coerce").fillna(0)
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
     df["Time"] = pd.to_datetime(df["Time"], format='%H:%M:%S', errors="coerce").dt.time
-    df["Comments"] = df["Comments"].replace("", pd.NA)  # Convert empty strings to NaN
+    df["Comments"] = df["Comments"].replace("", pd.NA)
 
-    # -------------------------------
-    # 🔹 Username-wise Summary Table
-    # -------------------------------
+    # Username summary
     if "username" in df.columns:
-        st.markdown("## 👥 Profile Comparison Summary")
-
+        st.markdown("## 👥 Profile Summary")
         summary_df = (
             df.groupby("username")
             .agg(
                 Total_Posts=("URL", "nunique"),
                 Total_Likes=("Likes", "sum"),
-                Total_Comments=("Comments", lambda x: x.notna().sum())
+                Total_Comments=("Comments", lambda x: x.notna().sum()),
             )
             .reset_index()
         )
 
-        # Format numbers nicely
         summary_df["Total_Likes"] = summary_df["Total_Likes"].apply(format_indian_number)
         summary_df["Total_Comments"] = summary_df["Total_Comments"].apply(format_indian_number)
 
         st.dataframe(summary_df, use_container_width=True)
 
-        # -------------------------------
-        # 🔽 Multiselect: Choose which users to explore
-        # -------------------------------
         selected_users = st.multiselect(
-            "Select one or more profiles to view details",
-            options=summary_df["username"].tolist()
+            "Select profiles to explore",
+            options=summary_df["username"].tolist(),
         )
 
         if selected_users:
             df = df[df["username"].isin(selected_users)]
-        else:
-            st.info("Select profiles above to explore their posts and stats.")
-            st.stop()
     else:
-        st.warning("Username column not found — cannot compare users.")
+        st.warning("Username column not found in data.")
         st.stop()
 
-    # -------------------------------
-    # User Overview (for selected users)
-    # -------------------------------
-    st.markdown("## User Overview")
-    total_posts = df["URL"].nunique()
-    total_likes = df["Likes"].sum()
-    total_comments = df["Comments"].notna().sum()
-
+    # Overview
+    st.markdown("## Overview")
     col1, col2, col3 = st.columns(3)
-    with col1:
-        st.write(f"📄 **Total Posts:** {format_indian_number(total_posts)}")
-    with col2:
-        st.write(f"❤️ **Total Likes:** {format_indian_number(total_likes)}")
-    with col3:
-        st.write(f"💬 **Total Comments:** {format_indian_number(total_comments)}")
+    col1.metric("Total Posts", format_indian_number(df["URL"].nunique()))
+    col2.metric("Total Likes", format_indian_number(df["Likes"].sum()))
+    col3.metric("Total Comments", format_indian_number(df["Comments"].notna().sum()))
 
-    # -------------------------------
-    # Explore Posts
-    # -------------------------------
+    # Post exploration
     st.markdown("## 📌 Explore Posts")
-    post_urls = df["URL"].unique().tolist()
-    selected_posts = st.multiselect(
-        "🔗 Select one or more Posts (URLs)",
-        post_urls
-    )
-
+    selected_posts = st.multiselect("Select posts to view details", df["URL"].unique())
     if selected_posts:
-        multi_posts = df[df["URL"].isin(selected_posts)]
-        st.subheader("📝 Selected Posts Details")
-        for url in selected_posts:
-            post_group = multi_posts[multi_posts["URL"] == url]
-            caption_row = post_group[post_group["Caption"].notna()]
-            if not caption_row.empty:
-                row = caption_row.iloc[0]
-                st.markdown(
-                    f"**Caption:** {row['Caption']}  \n"
-                    f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])}  \n"
-                    f"🔗 [View Post]({url})"
-                )
+        posts_df = df[df["URL"].isin(selected_posts)]
+        for _, row in posts_df.iterrows():
+            st.markdown(
+                f"**Caption:** {row['Caption']}  \n"
+                f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ {format_indian_number(row['Likes'])}  \n"
+                f"🔗 [View Post]({row['URL']})"
+            )
+            comments = posts_df.loc[posts_df["URL"] == row["URL"], "Comments"].dropna()
+            if not comments.empty:
+                st.dataframe(comments.reset_index(drop=True), use_container_width=True)
+            st.divider()
 
-                comments_only = post_group[post_group["Comments"].notna()].copy()
-                if not comments_only.empty:
-                    st.dataframe(comments_only[["Comments"]].reset_index(drop=True), use_container_width=True)
-                else:
-                    st.info("No comments available for this post.")
-
-            st.markdown("---")
-
-        # -------------------------------
-        # Download Button for Selected Posts
-        # -------------------------------
-        download_df = multi_posts.copy()
-        download_df["Likes"] = download_df["Likes"].astype(int)
-        csv_bytes = download_df.to_csv(index=False).encode("utf-8")
+        # Download selected
+        csv_bytes = posts_df.to_csv(index=False).encode("utf-8")
         st.download_button(
-            label="📥 Download Selected Posts as CSV",
+            "📥 Download Selected Posts CSV",
             data=csv_bytes,
-            file_name="selected_posts_report.csv",
-            mime="text/csv"
+            file_name="selected_posts.csv",
+            mime="text/csv",
         )
 
     else:
-        # Download full scraped data if no post selected
         csv_bytes = df.to_csv(index=False).encode("utf-8")
         st.download_button(
-            label="📥 Download Full Scraped Data as CSV",
+            "📥 Download Full Report CSV",
             data=csv_bytes,
-            file_name="full_scraped_report.csv",
-            mime="text/csv"
+            file_name="full_report.csv",
+            mime="text/csv",
         )
