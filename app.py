@@ -7,6 +7,8 @@ import pandas as pd
 import time
 from io import BytesIO
 from zipfile import ZipFile
+import uuid
+from datetime import datetime  # <-- Added
 
 # -------------------------------
 # GitHub Repo Details
@@ -60,7 +62,7 @@ def format_indian_number(number):
 
 
 # -------------------------------
-# Function to fetch latest artifact CSV
+# Function to fetch artifact CSV
 # -------------------------------
 def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
     headers = {"Authorization": f"Bearer {token}"}
@@ -90,14 +92,18 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
 
 
 # -------------------------------
-# SCRAPE BUTTON
+# 🕸️ SCRAPE BUTTON
 # -------------------------------
 if st.button("🕸️ Scrape Data"):
     if not profile_url or not username or not password:
         st.warning("⚠️ Please fill all fields before scraping.")
         st.stop()
 
-    st.info("🚀 Triggering scraper workflow...")
+    # Generate unique artifact name per user/session
+    unique_id = f"{username}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+    st.session_state["artifact_name"] = f"scraped_data_{unique_id}"
+
+    st.info(f"🚀 Triggering scraper workflow for artifact: `{st.session_state['artifact_name']}`")
 
     headers = {
         "Accept": "application/vnd.github+json",
@@ -114,6 +120,7 @@ if st.button("🕸️ Scrape Data"):
             "end_date": str(end_date),
             "username": username,
             "password": password,
+            "artifact_name": st.session_state["artifact_name"],  # 👈 pass unique name
         },
     }
 
@@ -129,9 +136,9 @@ if st.button("🕸️ Scrape Data"):
 
     st.info("⏳ Waiting for workflow to complete (up to 10 mins)...")
 
-    # Poll workflow status
+    # Poll until workflow finishes
     workflow_completed = False
-    for _ in range(100):  # 100 * 6 = ~10 mins
+    for _ in range(100):
         runs = requests.get(
             f"https://api.github.com/repos/{REPO}/actions/workflows/{WORKFLOW_ID}/runs",
             headers=headers,
@@ -146,24 +153,26 @@ if st.button("🕸️ Scrape Data"):
         st.success("✅ Scraping completed successfully!")
         st.session_state["scrape_done"] = True
     else:
-        st.error("❌ Workflow timed out or did not complete in time.")
+        st.error("❌ Workflow timed out.")
         st.session_state["scrape_done"] = False
 
 
 # -------------------------------
-# REPORT BUTTON (enabled only after scrape)
+# 📊 REPORT BUTTON (enabled after scrape)
 # -------------------------------
 if st.session_state.get("scrape_done", False):
     if st.button("📊 Get Report"):
-        st.info("📦 Fetching the latest scraped data...")
+        artifact_name = st.session_state.get("artifact_name", ARTIFACT_NAME)
+        st.info(f"📦 Fetching artifact `{artifact_name}` ...")
 
-        df = fetch_artifact_csv(REPO, GITHUB_TOKEN)
+        df = fetch_artifact_csv(REPO, GITHUB_TOKEN, artifact_name)
         if df is None or df.empty:
-            st.warning("⚠️ No data found in artifact.")
+            st.warning("⚠️ No data found in your artifact.")
             st.stop()
 
         st.session_state["scraped_df"] = df
-        st.success("✅ Data loaded successfully!")
+        st.success("✅ Your report is ready!")
+
 
 # -------------------------------
 # DISPLAY REPORT (if data loaded)
