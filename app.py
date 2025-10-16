@@ -25,15 +25,6 @@ st.title("📸 Instagram Scraper Dashboard")
 # Scraper Inputs
 # -------------------------------
 # Custom CSS to set minimum height
-st.markdown("""
-    <style>
-    textarea {
-        min-height: 25px !important;
-        resize: vertical !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 # Streamlit text area
 profile_url = st.text_area(
     "Enter one or more Instagram Profile URLs (comma-separated or one per line)",
