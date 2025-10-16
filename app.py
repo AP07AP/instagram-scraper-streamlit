@@ -228,20 +228,34 @@ if "scraped_df" in st.session_state:
 
     # Post exploration
     st.markdown("## 📌 Explore Posts")
-    selected_posts = st.multiselect("Select posts to view details", df["URL"].unique())
-    if selected_posts:
-        posts_df = df[df["URL"].isin(selected_posts)]
-        for _, row in posts_df.iterrows():
-            st.markdown(
-                f"**Caption:** {row['Caption']}  \n"
-                f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ {format_indian_number(row['Likes'])}  \n"
-                f"🔗 [View Post]({row['URL']})"
-            )
-            comments = posts_df.loc[posts_df["URL"] == row["URL"], "Comments"].dropna()
-            if not comments.empty:
-                st.dataframe(comments.reset_index(drop=True), use_container_width=True)
-            st.divider()
+    post_urls = df["URL"].unique().tolist()
+    selected_posts = st.multiselect(
+        "🔗 Select one or more Posts (URLs)",
+        post_urls
+    )
 
+    if selected_posts:
+        multi_posts = df[df["URL"].isin(selected_posts)]
+        st.subheader("📝 Selected Posts Details")
+        for url in selected_posts:
+            post_group = multi_posts[multi_posts["URL"] == url]
+            caption_row = post_group[post_group["Caption"].notna()]
+            if not caption_row.empty:
+                row = caption_row.iloc[0]
+                st.markdown(
+                    f"**Caption:** {row['Caption']}  \n"
+                    f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])}  \n"
+                    f"🔗 [View Post]({url})"
+                )
+
+                comments_only = post_group[post_group["Comments"].notna()].copy()
+                if not comments_only.empty:
+                    st.dataframe(comments_only[["Comments"]].reset_index(drop=True), use_container_width=True)
+                else:
+                    st.info("No comments available for this post.")
+
+            st.markdown("---")
+            
         # Download selected
         csv_bytes = posts_df.to_csv(index=False).encode("utf-8")
         st.download_button(
