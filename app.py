@@ -256,19 +256,25 @@ if "scraped_df" in st.session_state:
 
             st.markdown("---")
             
-        # Download selected
-        csv_bytes = posts_df.to_csv(index=False).encode("utf-8")
+        # -------------------------------
+        # Download Button for Selected Posts
+        # -------------------------------
+        download_df = multi_posts.copy()
+        download_df["Likes"] = download_df["Likes"].astype(int)
+        csv_bytes = download_df.to_csv(index=False).encode("utf-8")
         st.download_button(
-            "📥 Download Selected Posts CSV",
+            label="📥 Download Selected Posts as CSV",
             data=csv_bytes,
-            file_name="selected_posts.csv",
-            mime="text/csv",
+            file_name="selected_posts_report.csv",
+            mime="text/csv"
         )
+
     else:
+        # Download full scraped data if no post selected
         csv_bytes = df.to_csv(index=False).encode("utf-8")
         st.download_button(
-            "📥 Download Full Report CSV",
+            label="📥 Download Full Scraped Data as CSV",
             data=csv_bytes,
-            file_name="full_report.csv",
-            mime="text/csv",
+            file_name="full_scraped_report.csv",
+            mime="text/csv"
         )
