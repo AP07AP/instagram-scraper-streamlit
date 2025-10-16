@@ -36,7 +36,9 @@ with col1:
     start_date = st.date_input("Start Date")
 with col2:
     end_date = st.date_input("End Date")
-
+    
+username = st.text_input("Instagram Username")
+password = st.text_input("Instagram Password", type="password")
 # -------------------------------
 # Function to fetch latest artifact CSV
 # -------------------------------
