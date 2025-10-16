@@ -179,11 +179,11 @@ if "scraped_df" in st.session_state:
     # -------------------------------
     # 🔹 Username-wise Summary Table
     # -------------------------------
-    if "Username" in df.columns:
+    if "username" in df.columns:
         st.markdown("## 👥 Profile Comparison Summary")
 
         summary_df = (
-            df.groupby("Username")
+            df.groupby("username")
             .agg(
                 Total_Posts=("URL", "nunique"),
                 Total_Likes=("Likes", "sum"),
@@ -203,11 +203,11 @@ if "scraped_df" in st.session_state:
         # -------------------------------
         selected_users = st.multiselect(
             "Select one or more profiles to view details",
-            options=summary_df["Username"].tolist()
+            options=summary_df["username"].tolist()
         )
 
         if selected_users:
-            df = df[df["Username"].isin(selected_users)]
+            df = df[df["username"].isin(selected_users)]
         else:
             st.info("Select profiles above to explore their posts and stats.")
             st.stop()
