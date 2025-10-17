@@ -132,7 +132,6 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
             # Caption & comments
             all_comments_data = []
             if datetime_obj and start_dt.date() <= datetime_obj.date() <= end_dt.date():
-                -----
                 try:
                     # Dynamic fallback logic for comments container
                     if post_count == 1:
