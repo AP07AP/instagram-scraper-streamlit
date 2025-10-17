@@ -58,7 +58,6 @@ def format_indian_number(number):
         parts.append(remaining)
     return ','.join(reversed(parts)) + ',' + last3
 
-
 # -------------------------------
 # Function to fetch artifact CSV
 # -------------------------------
@@ -97,7 +96,6 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
     with zipfile.open(csv_filename) as f:
         df = pd.read_csv(f)
     return df
-
 
 # -------------------------------
 # SCRAPE BUTTON
@@ -157,7 +155,6 @@ if st.button("🕸️ Scrape Data"):
         st.error("❌ Workflow timed out.")
         st.session_state["scrape_done"] = False
 
-
 # -------------------------------
 # REPORT BUTTON (enabled after scrape)
 # -------------------------------
@@ -184,7 +181,6 @@ if st.session_state.get("scrape_done", False):
         st.session_state["scraped_df"] = df
         st.success("✅ Your report is ready!")
 
-
 # -------------------------------
 # DISPLAY REPORT
 # -------------------------------
@@ -201,14 +197,12 @@ if "scraped_df" in st.session_state:
     # -------------------------------
     # Overall Overview (All Users)
     # -------------------------------
-    # Overall Overview (All Users)
-    # -------------------------------
     st.markdown("## 📊 Overall Overview")
-    
+
     total_posts = df["URL"].nunique()
     total_likes = df["Likes"].sum()
     total_comments = df["Comments"].notna().sum()
-    
+
     all_comments = df[df["Comments"].notna()]
     sentiment_counts = (
         all_comments["Sentiment_label"].astype(str).str.strip().str.title().value_counts(normalize=True) * 100
@@ -216,8 +210,7 @@ if "scraped_df" in st.session_state:
     pos_pct = sentiment_counts.get("Positive", 0.0)
     neg_pct = sentiment_counts.get("Negative", 0.0)
     neu_pct = sentiment_counts.get("Neutral", 0.0)
-    
-    # Display placeholder image and metrics like user overview
+
     col1, col2, col3, col4 = st.columns([1,1.5,1.5,2])
     with col1:
         st.write(f"📄 **Posts:** {format_indian_number(total_posts)}")
@@ -232,6 +225,7 @@ if "scraped_df" in st.session_state:
             f"😡 Negative: {neg_pct:.1f}%  \n"
             f"😐 Neutral: {neu_pct:.1f}%"
         )
+
     # -------------------------------
     # Profile Summary Table with Sentiment
     # -------------------------------
@@ -243,7 +237,6 @@ if "scraped_df" in st.session_state:
             Total_Comments=("Comments", lambda x: x.notna().sum()),
         ).reset_index()
 
-        # User-wise sentiment
         sentiments_list = []
         for user in summary_df["username"]:
             user_comments = df[(df["username"]==user) & (df["Comments"].notna())]
@@ -262,7 +255,7 @@ if "scraped_df" in st.session_state:
         )
 
         # -------------------------------
-        # User Overview for Selected Users
+        # User Overview for Selected Users + User-wise Post Exploration + Download
         # -------------------------------
         for selected_user in selected_users:
             st.markdown(f"## 👤 User Overview: {selected_user}")
@@ -278,7 +271,6 @@ if "scraped_df" in st.session_state:
             neg_pct = sentiment_counts_user.get("Negative", 0.0)
             neu_pct = sentiment_counts_user.get("Neutral", 0.0)
 
-            # Display user profile image if exists
             col1, col2, col3, col4, col5 = st.columns([2,1,1,1,2])
             with col1:
                 img_path = f"{selected_user}.jpg"
@@ -301,109 +293,86 @@ if "scraped_df" in st.session_state:
                     f"😐 Neutral: {neu_pct:.1f}%"
                 )
 
-    # -------------------------------
-    # Overview (All Data)
-    # -------------------------------
-    # st.markdown("## Overview")
-    # col1, col2, col3 = st.columns(3)
-    # col1.metric("Total Posts", format_indian_number(df["URL"].nunique()))
-    # col2.metric("Total Likes", format_indian_number(df["Likes"].sum()))
-    # col3.metric("Total Comments", format_indian_number(df["Comments"].notna().sum()))
+            # User-wise Post Exploration
+            st.markdown(f"### 📌 Explore Posts: {selected_user}")
+            post_urls_user = filtered["URL"].unique().tolist()
+            selected_posts_user = st.multiselect(
+                f"🔗 Select Posts for {selected_user}",
+                post_urls_user,
+                key=f"posts_{selected_user}"
+            )
 
-    # -------------------------------
-    # User-Level Sentiment Overview
-    # -------------------------------
-    all_comments = df[df["Comments"].notna()]
-    if not all_comments.empty and "Sentiment_label" in df.columns:
-        sentiment_counts = (
-            all_comments["Sentiment_label"].astype(str).str.strip().str.title().value_counts(normalize=True) * 100
-        )
-        pos_pct = sentiment_counts.get("Positive", 0.0)
-        neg_pct = sentiment_counts.get("Negative", 0.0)
-        neu_pct = sentiment_counts.get("Neutral", 0.0)
+            if selected_posts_user:
+                multi_posts_user = filtered[filtered["URL"].isin(selected_posts_user)]
+                st.subheader(f"📝 Selected Posts Details: {selected_user}")
+                for url in selected_posts_user:
+                    post_group = multi_posts_user[multi_posts_user["URL"] == url]
+                    caption_row = post_group[post_group["Caption"].notna()]
+                    if not caption_row.empty:
+                        row = caption_row.iloc[0]
+                        st.markdown(
+                            f"**Caption:** {row['Caption']}  \n"
+                            f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])}  \n"
+                            f"🔗 [View Post]({url})"
+                        )
 
-        # st.markdown("## 🧠 Sentiment Overview")
-        # col1, col2, col3 = st.columns(3)
-        # col1.metric("🙂 Positive (%)", f"{pos_pct:.1f}%")
-        # col2.metric("😡 Negative (%)", f"{neg_pct:.1f}%")
-        # col3.metric("😐 Neutral (%)", f"{neu_pct:.1f}%")
+                        comments_only = post_group[post_group["Comments"].notna()].copy()
+                        if not comments_only.empty:
+                            if "Sentiment_label" in comments_only.columns:
+                                comments_only["Sentiment_label"] = comments_only["Sentiment_label"].astype(str).str.title()
+                                sentiment_filter = st.selectbox(
+                                    f"Filter comments by Sentiment ({url})", 
+                                    ["All", "Positive", "Negative", "Neutral"],
+                                    key=f"filter_{url}_{selected_user}"
+                                )
+                                if sentiment_filter != "All":
+                                    comments_only = comments_only[comments_only["Sentiment_label"] == sentiment_filter]
 
-    # -------------------------------
-    # Post exploration
-    # -------------------------------
-    st.markdown("## 📌 Explore Posts")
-    post_urls = df["URL"].unique().tolist()
-    selected_posts = st.multiselect(
-        "🔗 Select one or more Posts (URLs)",
-        post_urls
-    )
+                                st.dataframe(
+                                    comments_only[["Comments", "Sentiment_label", "Sentiment_score"]].reset_index(drop=True),
+                                    use_container_width=True
+                                )
 
-    if selected_posts:
-        multi_posts = df[df["URL"].isin(selected_posts)]
-        st.subheader("📝 Selected Posts Details")
-        for url in selected_posts:
-            post_group = multi_posts[multi_posts["URL"] == url]
-            caption_row = post_group[post_group["Caption"].notna()]
-            if not caption_row.empty:
-                row = caption_row.iloc[0]
-                st.markdown(
-                    f"**Caption:** {row['Caption']}  \n"
-                    f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])}  \n"
-                    f"🔗 [View Post]({url})"
+                                sentiment_counts_post = post_group[post_group["Comments"].notna()]["Sentiment_label"].astype(str).str.title().value_counts(normalize=True) * 100
+                                st.markdown(
+                                    f"**Post Sentiment:**  \n"
+                                    f"🙂 Positive: {sentiment_counts_post.get('Positive', 0):.1f}% | "
+                                    f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
+                                    f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
+                                )
+                            else:
+                                st.dataframe(comments_only[["Comments"]].reset_index(drop=True), use_container_width=True)
+                        else:
+                            st.info("No comments available for this post.")
+                    st.markdown("---")
+
+                # Download Button for Selected Posts (User-wise)
+                download_df_user = multi_posts_user.copy()
+                download_df_user["Likes"] = download_df_user["Likes"].astype(int)
+                csv_bytes_user = download_df_user.to_csv(index=False).encode("utf-8")
+                st.download_button(
+                    label=f"📥 Download Selected Posts for {selected_user}",
+                    data=csv_bytes_user,
+                    file_name=f"{selected_user}_selected_posts.csv",
+                    mime="text/csv"
                 )
 
-                comments_only = post_group[post_group["Comments"].notna()].copy()
-                if not comments_only.empty:
-                    # Add sentiment display per post
-                    if "Sentiment_label" in comments_only.columns:
-                        comments_only["Sentiment_label"] = comments_only["Sentiment_label"].astype(str).str.title()
-                        sentiment_filter = st.selectbox(
-                            f"Filter comments by Sentiment ({url})", 
-                            ["All", "Positive", "Negative", "Neutral"],
-                            key=f"filter_{url}"
-                        )
-                        if sentiment_filter != "All":
-                            comments_only = comments_only[comments_only["Sentiment_label"] == sentiment_filter]
+            # Download Overall User Data
+            csv_bytes_user_full = filtered.copy()
+            csv_bytes_user_full["Likes"] = csv_bytes_user_full["Likes"].astype(int)
+            csv_bytes_user_full = csv_bytes_user_full.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label=f"📥 Download Full Data for {selected_user}",
+                data=csv_bytes_user_full,
+                file_name=f"{selected_user}_full_data.csv",
+                mime="text/csv"
+            )
 
-                        st.dataframe(
-                            comments_only[["Comments", "Sentiment_label", "Sentiment_score"]].reset_index(drop=True),
-                            use_container_width=True
-                        )
-
-                        # Post sentiment summary
-                        sentiment_counts_post = post_group[post_group["Comments"].notna()]["Sentiment_label"].astype(str).str.title().value_counts(normalize=True) * 100
-                        st.markdown(
-                            f"**Post Sentiment:**  \n"
-                            f"🙂 Positive: {sentiment_counts_post.get('Positive', 0):.1f}% | "
-                            f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
-                            f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
-                        )
-                    else:
-                        st.dataframe(comments_only[["Comments"]].reset_index(drop=True), use_container_width=True)
-                else:
-                    st.info("No comments available for this post.")
-
-            st.markdown("---")
-            
-        # -------------------------------
-        # Download Button for Selected Posts
-        # -------------------------------
-        download_df = multi_posts.copy()
-        download_df["Likes"] = download_df["Likes"].astype(int)
-        csv_bytes = download_df.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            label="📥 Download Selected Posts as CSV",
-            data=csv_bytes,
-            file_name="selected_posts_report.csv",
-            mime="text/csv"
-        )
-
-    else:
-        # Download full scraped data if no post selected
-        csv_bytes = df.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            label="📥 Download Full Scraped Data as CSV",
-            data=csv_bytes,
-            file_name="full_scraped_report.csv",
-            mime="text/csv"
-        )
+    # Full dataset download
+    csv_bytes = df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="📥 Download Full Scraped Data as CSV",
+        data=csv_bytes,
+        file_name="full_scraped_report.csv",
+        mime="text/csv"
+    )
