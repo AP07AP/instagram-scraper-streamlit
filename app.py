@@ -100,7 +100,20 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
 # -------------------------------
 # SCRAPE BUTTON
 # -------------------------------
-if st.button("🕸️ Scrape Data"):
+# SCRAPE & REPORT BUTTONS (same line)
+# -------------------------------
+col_scrape, col_report = st.columns([1,1])
+
+with col_scrape:
+    scrape_clicked = st.button("🕸️ Scrape Data")
+
+with col_report:
+    report_clicked = st.button("📊 Get Report")
+
+# -------------------------------
+# SCRAPE LOGIC
+# -------------------------------
+if scrape_clicked:
     if not profile_url or not username:
         st.warning("⚠️ Please fill all fields before scraping.")
         st.stop()
@@ -156,30 +169,29 @@ if st.button("🕸️ Scrape Data"):
         st.session_state["scrape_done"] = False
 
 # -------------------------------
-# REPORT BUTTON (enabled after scrape)
+# REPORT LOGIC
 # -------------------------------
-if st.session_state.get("scrape_done", False):
-    if st.button("📊 Get Report"):
-        artifact_name = st.session_state.get("artifact_name", ARTIFACT_NAME)
-        st.info(f"📦 Fetching artifact `{artifact_name}` ...")
+if report_clicked and st.session_state.get("scrape_done", False):
+    artifact_name = st.session_state.get("artifact_name", ARTIFACT_NAME)
+    st.info(f"📦 Fetching artifact `{artifact_name}` ...")
 
-        df = fetch_artifact_csv(REPO, GITHUB_TOKEN, artifact_name)
-        if df is None or df.empty:
-            st.warning("⚠️ No data found in your artifact.")
-            st.stop()
+    df = fetch_artifact_csv(REPO, GITHUB_TOKEN, artifact_name)
+    if df is None or df.empty:
+        st.warning("⚠️ No data found in your artifact.")
+        st.stop()
 
-        # -------------------------------
-        # Sentiment Analysis Integration
-        # -------------------------------
-        import sentiment_model
+    # -------------------------------
+    # Sentiment Analysis Integration
+    # -------------------------------
+    import sentiment_model
 
-        if "Comments" in df.columns and not df["Comments"].isna().all():
-            st.info("🧠 Running Sentiment Analysis on Comments...")
-            df = sentiment_model.analyze_comments(df, column="Comments")
-            st.success("✅ Sentiment Analysis Completed!")
+    if "Comments" in df.columns and not df["Comments"].isna().all():
+        st.info("🧠 Running Sentiment Analysis on Comments...")
+        df = sentiment_model.analyze_comments(df, column="Comments")
+        st.success("✅ Sentiment Analysis Completed!")
 
-        st.session_state["scraped_df"] = df
-        st.success("✅ Your report is ready!")
+    st.session_state["scraped_df"] = df
+    st.success("✅ Your report is ready!")
 
 # -------------------------------
 # DISPLAY REPORT
