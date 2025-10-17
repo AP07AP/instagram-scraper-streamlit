@@ -103,7 +103,7 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
 # SCRAPE & REPORT BUTTONS (same line)
 # -------------------------------
 # col_scrape, col_report = st.columns([1,1])
-col_scrape, col_spacer, col_report = st.columns([1, 8, 1])
+col_scrape, col_spacer, col_report = st.columns([1, 5, 1])
 
 with col_scrape:
     scrape_clicked = st.button("🕸️ Scrape Data")
