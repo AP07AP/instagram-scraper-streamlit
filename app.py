@@ -292,11 +292,11 @@ if "scraped_df" in st.session_state:
     # -------------------------------
     # Overview (All Data)
     # -------------------------------
-    st.markdown("## Overview")
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Posts", format_indian_number(df["URL"].nunique()))
-    col2.metric("Total Likes", format_indian_number(df["Likes"].sum()))
-    col3.metric("Total Comments", format_indian_number(df["Comments"].notna().sum()))
+    # st.markdown("## Overview")
+    # col1, col2, col3 = st.columns(3)
+    # col1.metric("Total Posts", format_indian_number(df["URL"].nunique()))
+    # col2.metric("Total Likes", format_indian_number(df["Likes"].sum()))
+    # col3.metric("Total Comments", format_indian_number(df["Comments"].notna().sum()))
 
     # -------------------------------
     # User-Level Sentiment Overview
