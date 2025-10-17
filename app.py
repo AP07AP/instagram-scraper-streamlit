@@ -198,18 +198,46 @@ if "scraped_df" in st.session_state:
     df["Time"] = pd.to_datetime(df["Time"], format='%H:%M:%S', errors="coerce").dt.time
     df["Comments"] = df["Comments"].replace("", pd.NA)
 
-    # Username summary
+    # -------------------------------
+    # Overall Overview (All Users)
+    # -------------------------------
+    st.markdown("## 🌐 Overall Overview")
+    total_posts = df["URL"].nunique()
+    total_likes = df["Likes"].sum()
+    total_comments = df["Comments"].notna().sum()
+
+    all_comments = df[df["Comments"].notna()]
+    sentiment_counts = (
+        all_comments["Sentiment_label"].astype(str).str.strip().str.title().value_counts(normalize=True) * 100
+    )
+    pos_pct = sentiment_counts.get("Positive", 0.0)
+    neg_pct = sentiment_counts.get("Negative", 0.0)
+    neu_pct = sentiment_counts.get("Neutral", 0.0)
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Posts", format_indian_number(total_posts))
+    col2.metric("Total Likes", format_indian_number(total_likes))
+    col3.metric("Total Comments", format_indian_number(total_comments))
+    col4.metric("Overall Sentiment", f"🙂 {pos_pct:.1f}% | 😡 {neg_pct:.1f}% | 😐 {neu_pct:.1f}%")
+
+    # -------------------------------
+    # Profile Summary Table with Sentiment
+    # -------------------------------
     if "username" in df.columns:
         st.markdown("## 👥 Profile Summary")
-        summary_df = (
-            df.groupby("username")
-            .agg(
-                Total_Posts=("URL", "nunique"),
-                Total_Likes=("Likes", "sum"),
-                Total_Comments=("Comments", lambda x: x.notna().sum()),
-            )
-            .reset_index()
-        )
+        summary_df = df.groupby("username").agg(
+            Total_Posts=("URL", "nunique"),
+            Total_Likes=("Likes", "sum"),
+            Total_Comments=("Comments", lambda x: x.notna().sum()),
+        ).reset_index()
+
+        # User-wise sentiment
+        sentiments_list = []
+        for user in summary_df["username"]:
+            user_comments = df[(df["username"]==user) & (df["Comments"].notna())]
+            scounts = (user_comments["Sentiment_label"].astype(str).str.strip().str.title().value_counts(normalize=True)*100)
+            sentiments_list.append(f"🙂 {scounts.get('Positive',0):.1f}% | 😡 {scounts.get('Negative',0):.1f}% | 😐 {scounts.get('Neutral',0):.1f}%")
+        summary_df["Sentiment"] = sentiments_list
 
         summary_df["Total_Likes"] = summary_df["Total_Likes"].apply(format_indian_number)
         summary_df["Total_Comments"] = summary_df["Total_Comments"].apply(format_indian_number)
@@ -221,13 +249,49 @@ if "scraped_df" in st.session_state:
             options=summary_df["username"].tolist(),
         )
 
-        if selected_users:
-            df = df[df["username"].isin(selected_users)]
-    else:
-        st.warning("Username column not found in data.")
-        st.stop()
+        # -------------------------------
+        # User Overview for Selected Users
+        # -------------------------------
+        for selected_user in selected_users:
+            st.markdown(f"## 👤 User Overview: {selected_user}")
+            filtered = df[df["username"] == selected_user]
 
-    # Overview
+            total_posts = filtered["URL"].nunique()
+            total_likes = filtered["Likes"].sum()
+            total_comments = filtered["Comments"].notna().sum()
+
+            all_comments_user = filtered[filtered["Comments"].notna()]
+            sentiment_counts_user = (all_comments_user["Sentiment_label"].astype(str).str.strip().str.title().value_counts(normalize=True)*100)
+            pos_pct = sentiment_counts_user.get("Positive", 0.0)
+            neg_pct = sentiment_counts_user.get("Negative", 0.0)
+            neu_pct = sentiment_counts_user.get("Neutral", 0.0)
+
+            # Display user profile image if exists
+            col1, col2, col3, col4, col5 = st.columns([2,1,1,1,2])
+            with col1:
+                img_path = f"{selected_user}.jpg"
+                try:
+                    st.image(img_path, width=150, caption=selected_user)
+                except Exception:
+                    st.markdown(f"**Name:** {selected_user}")
+
+            with col2:
+                st.write(f"📄 **Total Posts:** {format_indian_number(total_posts)}")
+            with col3:
+                st.write(f"❤️ **Total Likes:** {format_indian_number(total_likes)}")
+            with col4:
+                st.write(f"💬 **Total Comments:** {format_indian_number(total_comments)}")
+            with col5:
+                st.markdown(
+                    f"**Overall Sentiment:**  \n"
+                    f"🙂 Positive: {pos_pct:.1f}%  \n"
+                    f"😡 Negative: {neg_pct:.1f}%  \n"
+                    f"😐 Neutral: {neu_pct:.1f}%"
+                )
+
+    # -------------------------------
+    # Overview (All Data)
+    # -------------------------------
     st.markdown("## Overview")
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Posts", format_indian_number(df["URL"].nunique()))
@@ -252,7 +316,9 @@ if "scraped_df" in st.session_state:
         col2.metric("😡 Negative (%)", f"{neg_pct:.1f}%")
         col3.metric("😐 Neutral (%)", f"{neu_pct:.1f}%")
 
+    # -------------------------------
     # Post exploration
+    # -------------------------------
     st.markdown("## 📌 Explore Posts")
     post_urls = df["URL"].unique().tolist()
     selected_posts = st.multiselect(
