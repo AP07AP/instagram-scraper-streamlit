@@ -218,7 +218,7 @@ if "scraped_df" in st.session_state:
     neu_pct = sentiment_counts.get("Neutral", 0.0)
     
     # Display placeholder image and metrics like user overview
-    col1, col2, col3, col4 = st.columns([1,1,2,2])
+    col1, col2, col3, col4 = st.columns([1,1,1.5,2])
     with col1:
         st.write(f"📄 **Posts:** {format_indian_number(total_posts)}")
     with col2:
