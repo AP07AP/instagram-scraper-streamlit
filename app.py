@@ -376,7 +376,7 @@ if "scraped_df" in st.session_state:
             excel_buffer_user = BytesIO()
             filtered_copy = filtered.copy()
             filtered_copy["Likes"] = filtered_copy["Likes"].astype(int)
-            with pd.ExcelWriter(excel_buffer_user, engine='xlsxwriter') as writer:
+            with pd.ExcelWriter(excel_buffer_user) as writer:
                 filtered_copy.to_excel(writer, index=False, sheet_name='User Data')
             excel_buffer_user.seek(0)
             
@@ -392,7 +392,7 @@ if "scraped_df" in st.session_state:
     
     # Full dataset download as Excel
     output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(output) as writer:
         df.to_excel(writer, index=False, sheet_name='Sheet1')
         writer.save()
     output.seek(0)
