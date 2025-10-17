@@ -15,9 +15,6 @@ on:
       username:
         description: 'Instagram Username'
         required: true
-      password:
-        description: 'Instagram Password'
-        required: true
       artifact_name:
         description: 'Unique artifact name to store CSV'
         required: true
@@ -41,7 +38,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run scraper
-      run: python scraper.py "${{ github.event.inputs.profile_url }}" "${{ github.event.inputs.start_date }}" "${{ github.event.inputs.end_date }}" "${{ github.event.inputs.username }}" "${{ github.event.inputs.password }}" "${{ github.event.inputs.artifact_name }}"
+      run: python scraper.py "${{ github.event.inputs.profile_url }}" "${{ github.event.inputs.start_date }}" "${{ github.event.inputs.end_date }}" "${{ github.event.inputs.username }}" "${{ github.event.inputs.artifact_name }}"
 
     - name: Upload scraped CSV as artifact
       uses: actions/upload-artifact@v4
