@@ -9,6 +9,7 @@ import uuid
 from io import BytesIO
 from zipfile import ZipFile
 
+
 # -------------------------------
 # GitHub Repo Details
 # -------------------------------
@@ -371,21 +372,34 @@ if "scraped_df" in st.session_state:
                 )
 
             # Download Overall User Data
-            csv_bytes_user_full = filtered.copy()
-            csv_bytes_user_full["Likes"] = csv_bytes_user_full["Likes"].astype(int)
-            csv_bytes_user_full = csv_bytes_user_full.to_csv(index=False).encode("utf-8")
+            # Download Overall User Data as Excel
+            excel_buffer_user = BytesIO()
+            filtered_copy = filtered.copy()
+            filtered_copy["Likes"] = filtered_copy["Likes"].astype(int)
+            with pd.ExcelWriter(excel_buffer_user, engine='xlsxwriter') as writer:
+                filtered_copy.to_excel(writer, index=False, sheet_name='User Data')
+            excel_buffer_user.seek(0)
+            
             st.download_button(
                 label=f"📥 Download Full Data for {selected_user}",
-                data=csv_bytes_user_full,
-                file_name=f"{selected_user}_full_data.csv",
-                mime="text/csv"
+                data=excel_buffer_user,
+                file_name=f"{selected_user}_full_data.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
+
     # Full dataset download
-    csv_bytes = df.to_csv(index=False).encode("utf-8")
+    
+    # Full dataset download as Excel
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
+        writer.save()
+    output.seek(0)
+    
     st.download_button(
-        label="📥 Download Full Scraped Data as CSV",
-        data=csv_bytes,
-        file_name="full_scraped_report.csv",
-        mime="text/csv"
+        label="📥 Download Full Scraped Data as Excel",
+        data=output,
+        file_name="full_scraped_report.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
