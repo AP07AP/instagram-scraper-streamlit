@@ -72,6 +72,9 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
 
     # Navigate to profile
     time.sleep(10)
+    # ✅ Normalize profile input
+    if not profile_url.startswith("http"):
+        profile_url = f"https://www.instagram.com/{profile_url.strip().strip('/')}/"
     driver.get(profile_url)
     print("✅ Profile page loaded")
     time.sleep(5)
