@@ -36,7 +36,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
     service = Service()  # Add path if chromedriver not in PATH
     driver = webdriver.Chrome(service=service, options=chrome_options)
     # driver = uc.Chrome(options=chrome_options)
-    wait = WebDriverWait(driver, 15)
+    wait = WebDriverWait(driver, 10)
 
     # Open Instagram main page
     driver.get("https://www.instagram.com/")
@@ -71,7 +71,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
         return
 
     # Navigate to profile
-    time.sleep(10)
+    time.sleep(5)
     # ✅ Normalize profile input
     if not profile_url.startswith("http"):
         profile_url = f"https://www.instagram.com/{profile_url.strip().strip('/')}/"
@@ -231,10 +231,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
     driver.quit()
     print("\n✅ Scraping completed successfully!")
 
-# -------------------------
-# CLI Run (multi-profile, single output file)
-# -------------------------
-# -------------------------
+
 # -------------------------
 # CLI Run (multi-profile, single output file)
 # -------------------------
