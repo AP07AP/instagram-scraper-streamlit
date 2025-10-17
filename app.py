@@ -335,7 +335,7 @@ if "scraped_df" in st.session_state:
                             if "Sentiment_label" in comments_only.columns:
                                 comments_only["Sentiment_label"] = comments_only["Sentiment_label"].astype(str).str.title()
                                 sentiment_filter = st.selectbox(
-                                    f"Filter comments by Sentiment ({url})", 
+                                    f"Filter comments by Sentiment", 
                                     ["All", "Positive", "Negative", "Neutral"],
                                     key=f"filter_{url}_{selected_user}"
                                 )
