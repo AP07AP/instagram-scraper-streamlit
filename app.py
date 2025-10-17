@@ -334,10 +334,10 @@ if "scraped_df" in st.session_state:
                     if not caption_row.empty:
                         row = caption_row.iloc[0]
                         st.markdown(
-                            f"**Caption:** {row['Caption']}  \n"
                             f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])}  \n"
-                            f"🔗 [View Post]({url})  \n"
+                            f"**Caption:** {row['Caption']}  \n"
                             f"🏷️ Hashtags: {row['Hashtags']}"
+                            f"🔗 [View Post]({url})  \n"
                         )
 
                         comments_only = post_group[post_group["Comments"].notna()].copy()
