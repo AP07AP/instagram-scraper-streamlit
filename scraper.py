@@ -28,8 +28,8 @@ def scrape_instagram(profile_url, start_date, end_date, username=None, password=
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--start-maximized")
-    # chrome_options.add_argument("--headless=new")
-    # chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
 
     # Initialize Chrome driver
@@ -214,6 +214,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None, password=
 # CLI Run (multi-profile, single output file)
 # -------------------------
 # -------------------------
+# -------------------------
 # CLI Run (multi-profile, single output file)
 # -------------------------
 if __name__ == "__main__":
@@ -221,21 +222,15 @@ if __name__ == "__main__":
     import os
 
     if len(sys.argv) < 6:
-        print("Usage: python scraper.py <profile_url(s) comma-separated> <start_date> <end_date> <username> <password> [artifact_name]")
-        print("Example: python scraper.py \"https://www.instagram.com/user1/,https://www.instagram.com/user2/\" 2025-10-01 2025-10-15 myuser mypass [scraped_data_unique]")
+        print("Usage: python scraper.py <profile_url(s) comma-separated> <start_date> <end_date> <username> <artifact_name>")
+        print("Example: python scraper.py \"https://www.instagram.com/user1/,https://www.instagram.com/user2/\" 2025-10-01 2025-10-15 myuser scraped_data_unique")
         sys.exit(1)
 
     profiles_arg = sys.argv[1]
     start_date = sys.argv[2]
     end_date = sys.argv[3]
     username = sys.argv[4]
-    password = sys.argv[5]
-
-    # Optional: artifact name
-    if len(sys.argv) > 6:
-        artifact_name = sys.argv[6]
-    else:
-        artifact_name = f"scraped_data_{username}_{uuid.uuid4().hex[:6]}"
+    artifact_name = sys.argv[5]
 
     profiles = [p.strip() for p in profiles_arg.split(",") if p.strip()]
 
@@ -249,8 +244,8 @@ if __name__ == "__main__":
     for profile in profiles:
         print(f"\n===== Scraping profile: {profile} =====")
         try:
-            # Run scraper and get the output file path (temp)
-            scrape_instagram(profile, start_date, end_date, username, password)
+            # Run scraper (already uses cookies internally)
+            scrape_instagram(profile, start_date, end_date, username)
 
             # Each call saves to a CSV, so load that and append, then delete
             start_str = datetime.strptime(start_date, "%Y-%m-%d").strftime("%m-%d")
@@ -261,7 +256,7 @@ if __name__ == "__main__":
             if os.path.exists(temp_file):
                 temp_df = pd.read_csv(temp_file, encoding="utf-8-sig")
                 combined_df = pd.concat([combined_df, temp_df], ignore_index=True)
-                os.remove(temp_file)  # delete individual profile file
+                os.remove(temp_file)
         except Exception as e:
             print(f"⚠️ Error scraping {profile}: {e}")
             continue
