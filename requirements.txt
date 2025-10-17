@@ -1,9 +1,22 @@
-pandas>=2.0.0
-selenium>=4.11.2
+# Streamlit and UI
 streamlit>=1.30.0
-torch
-transformers
-emoji
-pandas
-tqdm
-openpyxl
+
+# Data handling
+pandas>=2.0.0
+openpyxl>=3.1.2
+
+# Web automation
+selenium>=4.11.2
+
+# PyTorch (CPU-only for Streamlit Cloud)
+torch==2.2.0+cpu
+torchvision==0.16.0+cpu
+torchaudio==2.2.0+cpu
+
+# NLP & Transformers
+transformers>=4.40.0
+
+# Utilities
+emoji>=2.2.0
+tqdm>=4.65.0
+requests>=2.31.0
