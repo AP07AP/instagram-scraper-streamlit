@@ -165,7 +165,7 @@ class MuRILSentiment:
 
 def analyze_comments(df: pd.DataFrame, column="Comments") -> pd.DataFrame:
     """Run sentiment analysis on a dataframe's column"""
-    model = MuRILSentiment()
+    model = MuRILSentiment(model_name="DSL-13-SRMAP/MuRIL_WR", rules_dict=rules_dict)
     sentiments, confidences = [], []
 
     for text in tqdm(df[column].astype(str), desc="Analyzing Sentiments"):
