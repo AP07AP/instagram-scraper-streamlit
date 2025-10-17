@@ -130,7 +130,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
             all_comments_data = []
             if datetime_obj and start_dt.date() <= datetime_obj.date() <= end_dt.date():
                 try:
-                    comments_container = WebDriverWait(driver, 10).until(
+                    comments_container = WebDriverWait(driver, 10).until( 
                         EC.presence_of_element_located((By.XPATH, '/html/body/div[4]/div[1]/div/div[3]/div/div/div/div/div[2]/div/article/div/div[2]/div/div/div[2]/div[1]/ul/div[3]/div/div'))
                     )
                     # Caption
@@ -145,7 +145,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
                     # Load comments
                     prev_count = 0
                     while True:
-                        comment_blocks = comments_container.find_elements(By.XPATH, './div[position()>=1]/ul/div/li/div/div/div[2]/div[1]/span')
+                        comment_blocks = comments_container.find_elements(By.XPATH, './div[position()>=0]/ul/div/li/div/div/div[2]/div[1]/span')
                         current_count = len(comment_blocks)
 
                         for comment_elem in comment_blocks[prev_count:]:
