@@ -310,11 +310,11 @@ if "scraped_df" in st.session_state:
         neg_pct = sentiment_counts.get("Negative", 0.0)
         neu_pct = sentiment_counts.get("Neutral", 0.0)
 
-        st.markdown("## 🧠 Sentiment Overview")
-        col1, col2, col3 = st.columns(3)
-        col1.metric("🙂 Positive (%)", f"{pos_pct:.1f}%")
-        col2.metric("😡 Negative (%)", f"{neg_pct:.1f}%")
-        col3.metric("😐 Neutral (%)", f"{neu_pct:.1f}%")
+        # st.markdown("## 🧠 Sentiment Overview")
+        # col1, col2, col3 = st.columns(3)
+        # col1.metric("🙂 Positive (%)", f"{pos_pct:.1f}%")
+        # col2.metric("😡 Negative (%)", f"{neg_pct:.1f}%")
+        # col3.metric("😐 Neutral (%)", f"{neu_pct:.1f}%")
 
     # -------------------------------
     # Post exploration
