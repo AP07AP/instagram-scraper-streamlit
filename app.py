@@ -203,7 +203,7 @@ if "scraped_df" in st.session_state:
     # -------------------------------
     # Overall Overview (All Users)
     # -------------------------------
-    st.markdown("## 🌐 Overall Overview")
+    st.markdown("## 📊 Overall Overview")
     
     total_posts = df["URL"].nunique()
     total_likes = df["Likes"].sum()
