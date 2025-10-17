@@ -201,11 +201,14 @@ if "scraped_df" in st.session_state:
     # -------------------------------
     # Overall Overview (All Users)
     # -------------------------------
+    # Overall Overview (All Users)
+    # -------------------------------
     st.markdown("## 🌐 Overall Overview")
+    
     total_posts = df["URL"].nunique()
     total_likes = df["Likes"].sum()
     total_comments = df["Comments"].notna().sum()
-
+    
     all_comments = df[df["Comments"].notna()]
     sentiment_counts = (
         all_comments["Sentiment_label"].astype(str).str.strip().str.title().value_counts(normalize=True) * 100
@@ -213,13 +216,29 @@ if "scraped_df" in st.session_state:
     pos_pct = sentiment_counts.get("Positive", 0.0)
     neg_pct = sentiment_counts.get("Negative", 0.0)
     neu_pct = sentiment_counts.get("Neutral", 0.0)
-
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Posts", format_indian_number(total_posts))
-    col2.metric("Total Likes", format_indian_number(total_likes))
-    col3.metric("Total Comments", format_indian_number(total_comments))
-    col4.metric("Overall Sentiment", f"🙂 {pos_pct:.1f}% | 😡 {neg_pct:.1f}% | 😐 {neu_pct:.1f}%")
-
+    
+    # Display placeholder image and metrics like user overview
+    col1, col2, col3, col4, col5 = st.columns([2,1,1,1,2])
+    with col1:
+        try:
+            # Use a placeholder image for overall overview
+            st.image("overall_placeholder.jpg", width=150, caption="All Users")
+        except Exception:
+            st.markdown("**All Users**")
+    
+    with col2:
+        st.write(f"📄 **Total Posts:** {format_indian_number(total_posts)}")
+    with col3:
+        st.write(f"❤️ **Total Likes:** {format_indian_number(total_likes)}")
+    with col4:
+        st.write(f"💬 **Total Comments:** {format_indian_number(total_comments)}")
+    with col5:
+        st.markdown(
+            f"**Overall Sentiment:**  \n"
+            f"🙂 Positive: {pos_pct:.1f}%  \n"
+            f"😡 Negative: {neg_pct:.1f}%  \n"
+            f"😐 Neutral: {neu_pct:.1f}%"
+        )
     # -------------------------------
     # Profile Summary Table with Sentiment
     # -------------------------------
