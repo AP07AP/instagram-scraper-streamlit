@@ -2,10 +2,10 @@ streamlit>=1.50.0
 pandas>=2.0.0
 openpyxl>=3.1.2
 selenium>=4.36.0
-torch==2.9.0
+torch==2.8.0+cu126
 torchvision==0.16.0
 torchaudio==2.2.0
-transformers>=4.57.1
+transformers>=4.57.0
 emoji>=2.15.0
 tqdm>=4.67.1
 requests>=2.32.5
