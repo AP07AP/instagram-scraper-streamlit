@@ -218,21 +218,14 @@ if "scraped_df" in st.session_state:
     neu_pct = sentiment_counts.get("Neutral", 0.0)
     
     # Display placeholder image and metrics like user overview
-    col1, col2, col3, col4, col5 = st.columns([2,1,1,1,2])
+    col1, col2, col3, col4 = st.columns([1,1,1,2])
     with col1:
-        try:
-            # Use a placeholder image for overall overview
-            st.image("overall_placeholder.jpg", width=150, caption="All Users")
-        except Exception:
-            st.markdown("**All Users**")
-    
-    with col2:
         st.write(f"📄 **Total Posts:** {format_indian_number(total_posts)}")
-    with col3:
+    with col2:
         st.write(f"❤️ **Total Likes:** {format_indian_number(total_likes)}")
-    with col4:
+    with col3:
         st.write(f"💬 **Total Comments:** {format_indian_number(total_comments)}")
-    with col5:
+    with col4:
         st.markdown(
             f"**Overall Sentiment:**  \n"
             f"🙂 Positive: {pos_pct:.1f}%  \n"
