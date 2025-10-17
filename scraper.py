@@ -303,7 +303,7 @@ if __name__ == "__main__":
         return pd.DataFrame()  # return empty DF if error
 
     # Use ThreadPoolExecutor for parallel scraping
-    max_threads = min(4, len(profiles))  # adjust max threads here
+    max_threads = min(5, len(profiles))  # adjust max threads here
     with ThreadPoolExecutor(max_threads) as executor:
         futures = {executor.submit(scrape_and_return_df, profile): profile for profile in profiles}
         for future in as_completed(futures):
