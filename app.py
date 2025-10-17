@@ -199,12 +199,12 @@ if "scraped_df" in st.session_state:
     df["Comments"] = df["Comments"].replace("", pd.NA)
 
     # -------------------------------
-    # # Overall Overview (All Users)
-    # # -------------------------------
-    # st.markdown("## 🌐 Overall Overview")
-    # total_posts = df["URL"].nunique()
-    # total_likes = df["Likes"].sum()
-    # total_comments = df["Comments"].notna().sum()
+    # Overall Overview (All Users)
+    # -------------------------------
+    st.markdown("## 🌐 Overall Overview")
+    total_posts = df["URL"].nunique()
+    total_likes = df["Likes"].sum()
+    total_comments = df["Comments"].notna().sum()
 
     all_comments = df[df["Comments"].notna()]
     sentiment_counts = (
