@@ -37,7 +37,7 @@ with col2:
     end_date = st.date_input("End Date")
 
 username = st.text_input("Instagram Username")
-password = st.text_input("Instagram Password", type="password")
+# password = st.text_input("Instagram Password", type="password")
 
 # -------------------------------
 # Helper: Indian number format
@@ -104,7 +104,8 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
 # SCRAPE BUTTON
 # -------------------------------
 if st.button("🕸️ Scrape Data"):
-    if not profile_url or not username or not password:
+    # if not profile_url or not username or not password:
+    if not profile_url or not username:
         st.warning("⚠️ Please fill all fields before scraping.")
         st.stop()
 
@@ -126,7 +127,6 @@ if st.button("🕸️ Scrape Data"):
             "start_date": str(start_date),
             "end_date": str(end_date),
             "username": username,
-            "password": password,
             "artifact_name": st.session_state["artifact_name"],
         },
     }
