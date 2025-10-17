@@ -31,6 +31,34 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
     chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
+    
+    # ------------------------
+    # PERFORMANCE OPTIMIZATIONS
+    # ------------------------
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-infobars")
+    chrome_options.add_argument("--disable-popup-blocking")
+    chrome_options.add_argument("--disable-background-networking")
+    chrome_options.add_argument("--disable-sync")
+    chrome_options.add_argument("--metrics-recording-only")
+    chrome_options.add_argument("--disable-default-apps")
+    chrome_options.add_argument("--mute-audio")
+    chrome_options.add_argument("--disable-translate")
+    chrome_options.add_argument("--disable-background-timer-throttling")
+    chrome_options.add_argument("--disable-renderer-backgrounding")
+    chrome_options.add_argument("--disable-client-side-phishing-detection")
+    chrome_options.add_argument("--disable-hang-monitor")
+    chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_experimental_option("prefs", {
+        "profile.default_content_setting_values.images": 2,  # disable images
+        "profile.managed_default_content_settings.stylesheets": 2,  # disable CSS
+        "profile.managed_default_content_settings.javascript": 1,  # keep JS for functionality
+        "profile.default_content_setting_values.cookies": 1,
+        "profile.block_third_party_cookies": True,
+    })
+
 
     # Initialize Chrome driver
     service = Service()  # Add path if chromedriver not in PATH
@@ -234,14 +262,14 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
 
 # -------------------------
 # CLI Run (multi-profile, single output file)
-# -------------------------
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
 if __name__ == "__main__":
     import sys
     import os
 
     if len(sys.argv) < 6:
         print("Usage: python scraper.py <profile_url(s) comma-separated> <start_date> <end_date> <username> <artifact_name>")
-        print("Example: python scraper.py \"https://www.instagram.com/user1/,https://www.instagram.com/user2/\" 2025-10-01 2025-10-15 myuser scraped_data_unique")
         sys.exit(1)
 
     profiles_arg = sys.argv[1]
@@ -256,30 +284,38 @@ if __name__ == "__main__":
         print("⚠️ No profiles provided.")
         sys.exit(1)
 
-    # Master DataFrame for all profiles
     combined_df = pd.DataFrame()
 
-    for profile in profiles:
-        print(f"\n===== Scraping profile: {profile} =====")
+    # Function wrapper to run scraper and return resulting CSV as DataFrame
+    def scrape_and_return_df(profile):
         try:
-            # Run scraper (already uses cookies internally)
             scrape_instagram(profile, start_date, end_date, username)
-
-            # Each call saves to a CSV, so load that and append, then delete
             start_str = datetime.strptime(start_date, "%Y-%m-%d").strftime("%m-%d")
             end_str = datetime.strptime(end_date, "%Y-%m-%d").strftime("%m-%d")
             insta_user = profile.strip("/").split("/")[-1]
             temp_file = f"{start_str}_{end_str}_{insta_user}.csv"
-
             if os.path.exists(temp_file):
                 temp_df = pd.read_csv(temp_file, encoding="utf-8-sig")
-                combined_df = pd.concat([combined_df, temp_df], ignore_index=True)
                 os.remove(temp_file)
+                return temp_df
         except Exception as e:
             print(f"⚠️ Error scraping {profile}: {e}")
-            continue
+        return pd.DataFrame()  # return empty DF if error
 
-    # Save only one combined file using artifact_name
+    # Use ThreadPoolExecutor for parallel scraping
+    max_threads = min(4, len(profiles))  # adjust max threads here
+    with ThreadPoolExecutor(max_threads) as executor:
+        futures = {executor.submit(scrape_and_return_df, profile): profile for profile in profiles}
+        for future in as_completed(futures):
+            profile = futures[future]
+            try:
+                df = future.result()
+                if not df.empty:
+                    combined_df = pd.concat([combined_df, df], ignore_index=True)
+            except Exception as e:
+                print(f"⚠️ Exception for {profile}: {e}")
+
+    # Save combined CSV
     if not combined_df.empty:
         combined_df.to_csv(f"{artifact_name}.csv", index=False, encoding="utf-8-sig")
         print(f"\n✅ All profiles data combined and saved to {artifact_name}.csv (Rows: {len(combined_df)})")
