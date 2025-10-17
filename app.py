@@ -220,11 +220,11 @@ if "scraped_df" in st.session_state:
     # Display placeholder image and metrics like user overview
     col1, col2, col3, col4 = st.columns([1,1,1,2])
     with col1:
-        st.write(f"📄 **Total Posts:** {format_indian_number(total_posts)}")
+        st.write(f"📄 **Posts:** {format_indian_number(total_posts)}")
     with col2:
-        st.write(f"❤️ **Total Likes:** {format_indian_number(total_likes)}")
+        st.write(f"❤️ **Likes:** {format_indian_number(total_likes)}")
     with col3:
-        st.write(f"💬 **Total Comments:** {format_indian_number(total_comments)}")
+        st.write(f"💬 **Comments:** {format_indian_number(total_comments)}")
     with col4:
         st.markdown(
             f"**Overall Sentiment:**  \n"
