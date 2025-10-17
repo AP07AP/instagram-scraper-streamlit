@@ -1,3 +1,9 @@
 pandas>=2.0.0
 selenium>=4.11.2
 streamlit>=1.30.0
+torch
+transformers
+emoji
+pandas
+tqdm
+openpyxl
