@@ -37,7 +37,6 @@ with col2:
     end_date = st.date_input("End Date")
 
 username = st.text_input("Instagram Username")
-# password = st.text_input("Instagram Password", type="password")
 
 # -------------------------------
 # Helper: Indian number format
