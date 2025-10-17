@@ -394,7 +394,7 @@ if "scraped_df" in st.session_state:
     output = BytesIO()
     with pd.ExcelWriter(output) as writer:
         df.to_excel(writer, index=False, sheet_name='Sheet1')
-        writer.save()
+        # writer.save()
     output.seek(0)
     
     st.download_button(
