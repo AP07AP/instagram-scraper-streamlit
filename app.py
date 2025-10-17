@@ -103,7 +103,6 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
 # SCRAPE BUTTON
 # -------------------------------
 if st.button("🕸️ Scrape Data"):
-    # if not profile_url or not username or not password:
     if not profile_url or not username:
         st.warning("⚠️ Please fill all fields before scraping.")
         st.stop()
@@ -172,6 +171,16 @@ if st.session_state.get("scrape_done", False):
             st.warning("⚠️ No data found in your artifact.")
             st.stop()
 
+        # -------------------------------
+        # Sentiment Analysis Integration
+        # -------------------------------
+        import sentiment_model
+
+        if "Comments" in df.columns and not df["Comments"].isna().all():
+            st.info("🧠 Running Sentiment Analysis on Comments...")
+            df = sentiment_model.analyze_comments(df, column="Comments")
+            st.success("✅ Sentiment Analysis Completed!")
+
         st.session_state["scraped_df"] = df
         st.success("✅ Your report is ready!")
 
@@ -225,6 +234,24 @@ if "scraped_df" in st.session_state:
     col2.metric("Total Likes", format_indian_number(df["Likes"].sum()))
     col3.metric("Total Comments", format_indian_number(df["Comments"].notna().sum()))
 
+    # -------------------------------
+    # User-Level Sentiment Overview
+    # -------------------------------
+    all_comments = df[df["Comments"].notna()]
+    if not all_comments.empty and "Sentiment_label" in df.columns:
+        sentiment_counts = (
+            all_comments["Sentiment_label"].astype(str).str.strip().str.title().value_counts(normalize=True) * 100
+        )
+        pos_pct = sentiment_counts.get("Positive", 0.0)
+        neg_pct = sentiment_counts.get("Negative", 0.0)
+        neu_pct = sentiment_counts.get("Neutral", 0.0)
+
+        st.markdown("## 🧠 Sentiment Overview")
+        col1, col2, col3 = st.columns(3)
+        col1.metric("🙂 Positive (%)", f"{pos_pct:.1f}%")
+        col2.metric("😡 Negative (%)", f"{neg_pct:.1f}%")
+        col3.metric("😐 Neutral (%)", f"{neu_pct:.1f}%")
+
     # Post exploration
     st.markdown("## 📌 Explore Posts")
     post_urls = df["URL"].unique().tolist()
@@ -249,7 +276,32 @@ if "scraped_df" in st.session_state:
 
                 comments_only = post_group[post_group["Comments"].notna()].copy()
                 if not comments_only.empty:
-                    st.dataframe(comments_only[["Comments"]].reset_index(drop=True), use_container_width=True)
+                    # Add sentiment display per post
+                    if "Sentiment_label" in comments_only.columns:
+                        comments_only["Sentiment_label"] = comments_only["Sentiment_label"].astype(str).str.title()
+                        sentiment_filter = st.selectbox(
+                            f"Filter comments by Sentiment ({url})", 
+                            ["All", "Positive", "Negative", "Neutral"],
+                            key=f"filter_{url}"
+                        )
+                        if sentiment_filter != "All":
+                            comments_only = comments_only[comments_only["Sentiment_label"] == sentiment_filter]
+
+                        st.dataframe(
+                            comments_only[["Comments", "Sentiment_label", "Sentiment_score"]].reset_index(drop=True),
+                            use_container_width=True
+                        )
+
+                        # Post sentiment summary
+                        sentiment_counts_post = post_group[post_group["Comments"].notna()]["Sentiment_label"].astype(str).str.title().value_counts(normalize=True) * 100
+                        st.markdown(
+                            f"**Post Sentiment:**  \n"
+                            f"🙂 Positive: {sentiment_counts_post.get('Positive', 0):.1f}% | "
+                            f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
+                            f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
+                        )
+                    else:
+                        st.dataframe(comments_only[["Comments"]].reset_index(drop=True), use_container_width=True)
                 else:
                     st.info("No comments available for this post.")
 
