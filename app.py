@@ -8,7 +8,7 @@ import time
 import uuid
 from io import BytesIO
 from zipfile import ZipFile
-import re  # added for hashtag extraction
+
 
 # -------------------------------
 # GitHub Repo Details
@@ -101,6 +101,9 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
 # -------------------------------
 # SCRAPE BUTTON
 # -------------------------------
+# SCRAPE & REPORT BUTTONS (same line)
+# -------------------------------
+# col_scrape, col_report = st.columns([1,1])
 col_scrape, col_spacer, col_report = st.columns([1, 2.8, 1])
 
 with col_scrape:
@@ -117,6 +120,7 @@ if scrape_clicked:
         st.warning("⚠️ Please fill all fields before scraping.")
         st.stop()
 
+    # Unique artifact per user/session: username + short UUID
     unique_id = uuid.uuid4().hex[:6]
     st.session_state["artifact_name"] = f"scraped_data_{username}_{unique_id}"
 
@@ -203,19 +207,6 @@ if "scraped_df" in st.session_state:
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
     df["Time"] = pd.to_datetime(df["Time"], format='%H:%M:%S', errors="coerce").dt.time
     df["Comments"] = df["Comments"].replace("", pd.NA)
-
-    # -------------------------------
-    # Separate Hashtags from Caption
-    # -------------------------------
-    def separate_hashtags(text):
-        if pd.isna(text):
-            return "", ""
-        hashtags = re.findall(r"#\S+", text)
-        caption_only = re.sub(r"#\S+", "", text).strip()
-        hashtags_str = " ".join(hashtags)
-        return caption_only, hashtags_str
-
-    df[['Caption', 'Hashtags']] = df['Caption'].apply(lambda x: pd.Series(separate_hashtags(x)))
 
     # -------------------------------
     # Overall Overview (All Users)
@@ -336,8 +327,7 @@ if "scraped_df" in st.session_state:
                         st.markdown(
                             f"**Caption:** {row['Caption']}  \n"
                             f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])}  \n"
-                            f"🔗 [View Post]({url})  \n"
-                            f"🏷️ Hashtags: {row['Hashtags']}"
+                            f"🔗 [View Post]({url})"
                         )
 
                         comments_only = post_group[post_group["Comments"].notna()].copy()
@@ -382,6 +372,7 @@ if "scraped_df" in st.session_state:
                 )
 
             # Download Overall User Data
+            # Download Overall User Data as Excel
             excel_buffer_user = BytesIO()
             filtered_copy = filtered.copy()
             filtered_copy["Likes"] = filtered_copy["Likes"].astype(int)
@@ -398,9 +389,12 @@ if "scraped_df" in st.session_state:
 
 
     # Full dataset download
+    
+    # Full dataset download as Excel
     output = BytesIO()
     with pd.ExcelWriter(output) as writer:
         df.to_excel(writer, index=False, sheet_name='Sheet1')
+        # writer.save()
     output.seek(0)
     
     st.download_button(
