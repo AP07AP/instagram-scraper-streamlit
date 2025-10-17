@@ -16,7 +16,7 @@ import json
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-def scrape_instagram(profile_url, start_date, end_date, username=None, password=None):
+def scrape_instagram(profile_url, start_date, end_date, username=None):
     # Generate output filename dynamically
     start_str = datetime.strptime(start_date, "%Y-%m-%d").strftime("%m-%d")
     end_str = datetime.strptime(end_date, "%Y-%m-%d").strftime("%m-%d")
