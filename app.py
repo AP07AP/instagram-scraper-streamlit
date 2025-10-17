@@ -20,7 +20,7 @@ ARTIFACT_NAME = "scraped_data"  # fallback name
 # -------------------------------
 # Dashboard Title
 # -------------------------------
-st.title("📸 Instagram Scraper Dashboard")
+st.title("📸 Instagram Analyser Dashboard")
 
 # -------------------------------
 # Scraper Inputs
