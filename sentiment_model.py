@@ -107,8 +107,8 @@ rules_dict={
 class EnhancedTeluguPreprocessor:
     def __init__(self, rules_dict=rules_dict):
         self.rules = rules_dict
-        self.negations = self.rules.get("negation_words", {})
-        self.boosters = self.rules.get("booster_words", {})
+        self.negations = {word: "not" for word in self.rules.get("negation_words", [])}
+        self.boosters = {word: word for word in self.rules.get("booster_words", [])}
         self.translit_variants = self.rules.get("translit_variants", {})
         self.punctuation_pattern = re.compile(r"[^\w\s]", re.UNICODE)
 
