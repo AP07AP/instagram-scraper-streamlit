@@ -319,18 +319,18 @@ if "scraped_df" in st.session_state:
             if top_hashtags_user:
                 tags, counts = zip(*top_hashtags_user)
                 df_hashtags_user = pd.DataFrame({"Hashtag": tags, "Frequency": counts})
-
-                # st.markdown(f"### 🔖 Top Hashtags for {selected_user} (All Posts)")
+            
+                st.markdown(f"### 🔖 Top Hashtags for {selected_user} (All Posts)")
                 fig_hashtags_user = px.bar(
-                    df_hashtags_user.sort_values("Frequency"),
+                    df_hashtags_user.sort_values("Frequency", ascending=False),
                     x="Frequency",
                     y="Hashtag",
                     orientation='h',
-                    text="Frequency",
+                    text="Frequency",  # display frequency inside bars
                     labels={"Frequency": "Count", "Hashtag": "Hashtags"},
-                    title=f" 🔖 Top 10 Hashtags for {selected_user}"
+                    title=f"Top 10 Hashtags for {selected_user}"
                 )
-                fig_hashtags_user.update_traces(texttemplate='%{text}', textposition='outside', marker_color='lightblue')
+                fig_hashtags_user.update_traces(texttemplate='%{text}', textposition='inside', marker_color='lightblue')
                 fig_hashtags_user.update_layout(
                     yaxis=dict(autorange="reversed"),
                     xaxis_title="Frequency",
@@ -341,6 +341,7 @@ if "scraped_df" in st.session_state:
                 st.plotly_chart(fig_hashtags_user, use_container_width=True)
             else:
                 st.info(f"No hashtags found for {selected_user}.")
+
 
             # User-wise Post Exploration
             st.markdown(f"### 📌 Explore Posts: {selected_user}")
