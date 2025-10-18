@@ -348,12 +348,12 @@ if "scraped_df" in st.session_state:
                             sentiment_counts_post = (
                                 comments_with_sentiment["Sentiment_label"].astype(str).str.title().value_counts(normalize=True) * 100
                             )
-                            st.markdown(
-                                f"**Post Sentiment:**  \n"
-                                f"🙂 Positive: {sentiment_counts_post.get('Positive', 0):.1f}% | "
-                                f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
-                                f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
-                            )
+                            # st.markdown(
+                            #     f"**Post Sentiment:**  \n"
+                            #     f"🙂 Positive: {sentiment_counts_post.get('Positive', 0):.1f}% | "
+                            #     f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
+                            #     f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
+                            # )
             
                             # Prepare DataFrame for Plotly
                             df_plot = pd.DataFrame({
@@ -382,7 +382,7 @@ if "scraped_df" in st.session_state:
                             # Customize layout
                             fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
                             fig.update_layout(
-                                yaxis_title="Percentage (%)",
+                                yaxis_title="Percentage",
                                 xaxis_title="",
                                 showlegend=False,
                                 uniformtext_minsize=12,
@@ -391,7 +391,7 @@ if "scraped_df" in st.session_state:
                             
                             st.plotly_chart(fig, use_container_width=True)
 
-                        st.markdown("---")
+                        # st.markdown("---")
 
                     # st.markdown("---")
 
