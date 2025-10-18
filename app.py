@@ -353,6 +353,7 @@ if "scraped_df" in st.session_state:
                                 f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
                                 f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
                             )
+                            st.bar_chart(sentiment_counts_post)
                 
                         st.markdown("---")
 
