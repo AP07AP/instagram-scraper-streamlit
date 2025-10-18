@@ -336,8 +336,8 @@ if "scraped_df" in st.session_state:
                         comments_formatted = format_indian_number(total_comments_post)
                 
                         st.markdown(
-                            f"**Caption:** {row['Caption']}  \n\n"
-                            f"🔗 [View Post]({url}) 📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {likes_formatted} 💬 Comments: {comments_formatted}  \n"
+                            f"**Caption:** {row['Caption']} 🔗 [View Post]({url})  \n\n"
+                            f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {likes_formatted} 💬 Comments: {comments_formatted}  \n"
                             # f"🔗 [View Post]({url})"
                         )
                 
