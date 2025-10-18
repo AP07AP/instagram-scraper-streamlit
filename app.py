@@ -380,7 +380,7 @@ if "scraped_df" in st.session_state:
                         
                 #         st.markdown("---")  # optional separator between posts
 
-                    st.markdown("---")
+                    # st.markdown("---")
 
                 # Download Button for Selected Posts (User-wise)
                 download_df_user = multi_posts_user.copy()
