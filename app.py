@@ -102,9 +102,6 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
 # -------------------------------
 # SCRAPE BUTTON
 # -------------------------------
-# SCRAPE & REPORT BUTTONS (same line)
-# -------------------------------
-# col_scrape, col_report = st.columns([1,1])
 col_scrape, col_spacer, col_report = st.columns([1, 2.8, 1])
 
 with col_scrape:
@@ -325,38 +322,33 @@ if "scraped_df" in st.session_state:
                 for url in selected_posts_user:
                     post_group = multi_posts_user[multi_posts_user["URL"] == url]
                     caption_row = post_group[post_group["Caption"].notna()]
-                
+
                     # Total comments for this post
                     total_comments_post = post_group["Comments"].notna().sum()
-                
+
                     if not caption_row.empty:
                         row = caption_row.iloc[0]
-                
+
                         # Format likes and comments
                         likes_formatted = format_indian_number(row["Likes"])
                         comments_formatted = format_indian_number(total_comments_post)
-                
+
                         st.markdown(
                             f"**Caption:** {row['Caption']} 🔗 [View Post]({url})  \n\n"
                             f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {likes_formatted} 💬 Comments: {comments_formatted}  \n"
-                            # f"🔗 [View Post]({url})"
                         )
-                
+
                         # Calculate post sentiment (if comments exist)
                         comments_with_sentiment = post_group[post_group["Comments"].notna()]
                         if not comments_with_sentiment.empty and "Sentiment_label" in comments_with_sentiment.columns:
                             sentiment_counts_post = (
                                 comments_with_sentiment["Sentiment_label"].astype(str).str.title().value_counts(normalize=True) * 100
                             )
-                            # st.markdown(
-                            #     f"**Post Sentiment:**  \n"
-                            #     f"🙂 Positive: {sentiment_counts_post.get('Positive', 0):.1f}% | "
-                            #     f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
-                            #     f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
-                            # )
-            
-                            # Prepare DataFrame for Plotly
-                            df_plot = pd.DataFrame({
+
+                            # -------------------------
+                            # --- Plot Sentiment & Hashtags Side-by-Side ---
+                            # -------------------------
+                            df_sentiment = pd.DataFrame({
                                 "Sentiment": ["🙂 Positive", "😡 Negative", "😐 Neutral"],
                                 "Percentage": [
                                     sentiment_counts_post.get("Positive", 0),
@@ -364,49 +356,80 @@ if "scraped_df" in st.session_state:
                                     sentiment_counts_post.get("Neutral", 0)
                                 ]
                             })
-                            
-                            # Create bar chart
-                            fig = px.bar(
-                                df_plot,
-                                x="Sentiment",
-                                y="Percentage",
-                                text="Percentage",
-                                color="Sentiment",
-                                color_discrete_map={
-                                    "🙂 Positive": "green",
-                                    "😡 Negative": "red",
-                                    "😐 Neutral": "gray"
-                                }
-                            )
-                            
-                            # Customize layout
-                            fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
-                            fig.update_layout(
-                                yaxis_title="Percentage",
-                                xaxis_title="",
-                                showlegend=False,
-                                uniformtext_minsize=12,
-                                uniformtext_mode='hide'
-                            )
-                            
-                            st.plotly_chart(fig, use_container_width=True)
 
-                        # st.markdown("---")
+                            # Top 5 Hashtags
+                            hashtags_list = post_group['Hashtags'].dropna().tolist()
+                            all_hashtags = []
+                            for h in hashtags_list:
+                                all_hashtags.extend([tag.strip() for tag in h.split(",")])
 
-                    # st.markdown("---")
+                            from collections import Counter
+                            top_hashtags = Counter(all_hashtags).most_common(5)
+                            if top_hashtags:
+                                tags, counts = zip(*top_hashtags)
+                                df_hashtags = pd.DataFrame({"Hashtag": tags, "Frequency": counts})
+                            else:
+                                df_hashtags = pd.DataFrame({"Hashtag": [], "Frequency": []})
 
-                # Download Button for Selected Posts (User-wise)
-                download_df_user = multi_posts_user.copy()
-                download_df_user["Likes"] = download_df_user["Likes"].astype(int)
-                csv_bytes_user = download_df_user.to_csv(index=False).encode("utf-8")
-                st.download_button(
-                    label=f"📥 Download Selected Posts for {selected_user}",
-                    data=csv_bytes_user,
-                    file_name=f"{selected_user}_selected_posts.csv",
-                    mime="text/csv"
-                )
+                            col_sent, col_hash = st.columns([1,1])
 
-            # Download Overall User Data
+                            with col_sent:
+                                fig_sent = px.bar(
+                                    df_sentiment,
+                                    x="Sentiment",
+                                    y="Percentage",
+                                    text="Percentage",
+                                    color="Sentiment",
+                                    color_discrete_map={
+                                        "🙂 Positive": "green",
+                                        "😡 Negative": "red",
+                                        "😐 Neutral": "gray"
+                                    }
+                                )
+                                fig_sent.update_traces(texttemplate='%{text:.1f}%', textposition='outside', marker_line_width=0.5)
+                                fig_sent.update_layout(
+                                    yaxis_title="Percentage",
+                                    xaxis_title="",
+                                    showlegend=False,
+                                    uniformtext_minsize=12,
+                                    uniformtext_mode='hide'
+                                )
+                                st.plotly_chart(fig_sent, use_container_width=True)
+
+                            with col_hash:
+                                if not df_hashtags.empty:
+                                    fig_hash = px.bar(
+                                        df_hashtags.sort_values("Frequency"),
+                                        x="Frequency",
+                                        y="Hashtag",
+                                        orientation='h',
+                                        text="Frequency",
+                                        labels={"Frequency": "Count", "Hashtag": "Hashtags"},
+                                        title="Top 5 Hashtags"
+                                    )
+                                    fig_hash.update_traces(texttemplate='%{text}', textposition='outside', marker_color='lightblue')
+                                    fig_hash.update_layout(
+                                        yaxis=dict(autorange="reversed"),  # highest frequency at top
+                                        xaxis_title="Frequency",
+                                        yaxis_title="Hashtags",
+                                        uniformtext_minsize=12,
+                                        uniformtext_mode='hide'
+                                    )
+                                    st.plotly_chart(fig_hash, use_container_width=True)
+                                else:
+                                    st.info("No hashtags found for this post.")
+
+                    # Download Button for Selected Posts (User-wise)
+                    download_df_user = multi_posts_user.copy()
+                    download_df_user["Likes"] = download_df_user["Likes"].astype(int)
+                    csv_bytes_user = download_df_user.to_csv(index=False).encode("utf-8")
+                    st.download_button(
+                        label=f"📥 Download Selected Posts for {selected_user}",
+                        data=csv_bytes_user,
+                        file_name=f"{selected_user}_selected_posts.csv",
+                        mime="text/csv"
+                    )
+
             # Download Overall User Data as Excel
             excel_buffer_user = BytesIO()
             filtered_copy = filtered.copy()
@@ -414,7 +437,7 @@ if "scraped_df" in st.session_state:
             with pd.ExcelWriter(excel_buffer_user) as writer:
                 filtered_copy.to_excel(writer, index=False, sheet_name='User Data')
             excel_buffer_user.seek(0)
-            
+
             st.download_button(
                 label=f"📥 Download Full Data for {selected_user}",
                 data=excel_buffer_user,
@@ -422,16 +445,12 @@ if "scraped_df" in st.session_state:
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
-
-    # Full dataset download
-    
     # Full dataset download as Excel
     output = BytesIO()
     with pd.ExcelWriter(output) as writer:
         df.to_excel(writer, index=False, sheet_name='Sheet1')
-        # writer.save()
     output.seek(0)
-    
+
     st.download_button(
         label="📥 Download Full Scraped Data as Excel",
         data=output,
