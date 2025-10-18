@@ -341,40 +341,6 @@ if "scraped_df" in st.session_state:
                         
                         st.markdown("---")  # optional separator between posts
 
-                    #     st.markdown(
-                    #         f"**Caption:** {row['Caption']}  \n"
-                    #         f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])}  \n"
-                    #         f"🔗 [View Post]({url})"
-                    #     )
-
-                    #     comments_only = post_group[post_group["Comments"].notna()].copy()
-                    #     if not comments_only.empty:
-                    #         if "Sentiment_label" in comments_only.columns:
-                    #             comments_only["Sentiment_label"] = comments_only["Sentiment_label"].astype(str).str.title()
-                    #             sentiment_filter = st.selectbox(
-                    #                 f"Filter comments by Sentiment", 
-                    #                 ["All", "Positive", "Negative", "Neutral"],
-                    #                 key=f"filter_{url}_{selected_user}"
-                    #             )
-                    #             if sentiment_filter != "All":
-                    #                 comments_only = comments_only[comments_only["Sentiment_label"] == sentiment_filter]
-
-                    #             st.dataframe(
-                    #                 comments_only[["Comments", "Sentiment_label", "Sentiment_score"]].reset_index(drop=True),
-                    #                 use_container_width=True
-                    #             )
-
-                    #             sentiment_counts_post = post_group[post_group["Comments"].notna()]["Sentiment_label"].astype(str).str.title().value_counts(normalize=True) * 100
-                    #             st.markdown(
-                    #                 f"**Post Sentiment:**  \n"
-                    #                 f"🙂 Positive: {sentiment_counts_post.get('Positive', 0):.1f}% | "
-                    #                 f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
-                    #                 f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
-                    #             )
-                    #         else:
-                    #             st.dataframe(comments_only[["Comments"]].reset_index(drop=True), use_container_width=True)
-                    #     else:
-                    #         st.info("No comments available for this post.")
                     st.markdown("---")
 
                 # Download Button for Selected Posts (User-wise)
