@@ -305,6 +305,42 @@ if "scraped_df" in st.session_state:
                     f"😡 Negative: {neg_pct:.1f}%  \n"
                     f"😐 Neutral: {neu_pct:.1f}%"
                 )
+            # -------------------------------
+            # User-wise Hashtag Analysis (All Posts)
+            # -------------------------------
+            hashtags_list_user = filtered['Hashtags'].dropna().tolist()
+            all_hashtags_user = []
+            for h in hashtags_list_user:
+                all_hashtags_user.extend([tag.strip() for tag in h.split(",")])
+
+            from collections import Counter
+            top_hashtags_user = Counter(all_hashtags_user).most_common(10)  # top 10 hashtags
+
+            if top_hashtags_user:
+                tags, counts = zip(*top_hashtags_user)
+                df_hashtags_user = pd.DataFrame({"Hashtag": tags, "Frequency": counts})
+
+                st.markdown(f"### 🔖 Top Hashtags for {selected_user} (All Posts)")
+                fig_hashtags_user = px.bar(
+                    df_hashtags_user.sort_values("Frequency"),
+                    x="Frequency",
+                    y="Hashtag",
+                    orientation='h',
+                    text="Frequency",
+                    labels={"Frequency": "Count", "Hashtag": "Hashtags"},
+                    title=f"Top 10 Hashtags for {selected_user}"
+                )
+                fig_hashtags_user.update_traces(texttemplate='%{text}', textposition='outside', marker_color='lightblue')
+                fig_hashtags_user.update_layout(
+                    yaxis=dict(autorange="reversed"),
+                    xaxis_title="Frequency",
+                    yaxis_title="Hashtags",
+                    uniformtext_minsize=12,
+                    uniformtext_mode='hide'
+                )
+                st.plotly_chart(fig_hashtags_user, use_container_width=True)
+            else:
+                st.info(f"No hashtags found for {selected_user}.")
 
             # User-wise Post Exploration
             st.markdown(f"### 📌 Explore Posts: {selected_user}")
