@@ -322,13 +322,15 @@ if "scraped_df" in st.session_state:
                 for url in selected_posts_user:
                     post_group = multi_posts_user[multi_posts_user["URL"] == url]
                     caption_row = post_group[post_group["Caption"].notna()]
+                    total_comments_post = post_group["Comments"].notna().sum()
                     if not caption_row.empty:
                         row = caption_row.iloc[0]
                         st.markdown(
                             f"**Caption:** {row['Caption']}  \n"
-                            f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])}  \n"
+                            f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])} 💬 Comments: {format_indian_number(total_comments_post)}  \n"
                             f"🔗 [View Post]({url})"
                         )
+
                         
                         # Calculate Post Sentiment
                         sentiment_counts_post = post_group[post_group["Comments"].notna()]["Sentiment_label"].astype(str).str.title().value_counts(normalize=True) * 100
