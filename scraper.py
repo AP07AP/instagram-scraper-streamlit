@@ -59,7 +59,6 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
         "profile.block_third_party_cookies": True,
     })
 
-
     # Initialize Chrome driver
     service = Service()  # Add path if chromedriver not in PATH
     driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -161,7 +160,6 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
             all_comments_data = []
             if datetime_obj and start_dt.date() <= datetime_obj.date() <= end_dt.date():
                 try:
-                    # Dynamic fallback logic for comments container
                     if post_count == 1:
                         try:
                             comments_container = WebDriverWait(driver, 10).until(
@@ -170,7 +168,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
                         except Exception:
                             comments_container = WebDriverWait(driver, 10).until(
                                 EC.presence_of_element_located((By.XPATH, '/html/body/div[4]/div[1]/div/div[3]/div/div/div/div/div[2]/div/article/div/div[2]/div/div/div[2]/div[1]/ul/div[3]/div/div'))
-                            ) 
+                            )
                     else:
                         try:
                             comments_container = WebDriverWait(driver, 10).until(
@@ -180,7 +178,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
                             comments_container = WebDriverWait(driver, 10).until(
                                 EC.presence_of_element_located((By.XPATH, '/html/body/div[5]/div[1]/div/div[3]/div/div/div/div/div[2]/div/article/div/div[2]/div/div/div[2]/div[1]/ul/div[3]/div/div'))
                             )
-                        
+
                     print(f"✅ Comments container found for Post {post_count}")
                     # Caption
                     try:
@@ -220,8 +218,18 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
             else:
                 print(f"⏭ Post {post_count} skipped: date {date_posted} not in range.")
 
-            # Save post data
+            # Save post data (added hashtag separation here)
             first_row = True
+            raw_caption = all_comments_data[0] if all_comments_data else ""
+            if raw_caption:
+                parts = raw_caption.split()
+                hashtags = [p for p in parts if p.startswith("#")]
+                caption_clean = " ".join(p for p in parts if not p.startswith("#"))
+                hashtags_text = ", ".join(hashtags)
+            else:
+                caption_clean = ""
+                hashtags_text = ""
+
             for comment in all_comments_data[1:]:
                 data.append({
                     "username": profile_url.split("/")[-2],
@@ -230,7 +238,8 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
                     "Date": date_posted if first_row else "",
                     "Time": time_posted if first_row else "",
                     "Likes": likes if first_row else "",
-                    "Caption": all_comments_data[0] if first_row else "",
+                    "Caption": caption_clean if first_row else "",
+                    "Hashtags": hashtags_text if first_row else "",
                     "Comments": comment,
                 })
                 first_row = False
@@ -286,7 +295,6 @@ if __name__ == "__main__":
 
     combined_df = pd.DataFrame()
 
-    # Function wrapper to run scraper and return resulting CSV as DataFrame
     def scrape_and_return_df(profile):
         try:
             scrape_instagram(profile, start_date, end_date, username)
@@ -300,10 +308,9 @@ if __name__ == "__main__":
                 return temp_df
         except Exception as e:
             print(f"⚠️ Error scraping {profile}: {e}")
-        return pd.DataFrame()  # return empty DF if error
+        return pd.DataFrame()
 
-    # Use ThreadPoolExecutor for parallel scraping
-    max_threads = min(5, len(profiles))  # adjust max threads here
+    max_threads = min(5, len(profiles))
     with ThreadPoolExecutor(max_threads) as executor:
         futures = {executor.submit(scrape_and_return_df, profile): profile for profile in profiles}
         for future in as_completed(futures):
