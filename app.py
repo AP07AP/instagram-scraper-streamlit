@@ -6,6 +6,7 @@ import requests
 import pandas as pd
 import time
 import uuid
+import plotly.express as px
 from io import BytesIO
 from zipfile import ZipFile
 
@@ -353,22 +354,43 @@ if "scraped_df" in st.session_state:
                                 f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
                                 f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
                             )
-                            # Map sentiment labels to emojis
-                            emoji_map = {
-                                "Positive": "🙂",
-                                "Negative": "😡",
-                                "Neutral": "😐"
-                            }
-                            
-                            # Prepare DataFrame for bar chart
+            
+                            # Prepare DataFrame for Plotly
                             df_plot = pd.DataFrame({
-                                "Sentiment": [emoji_map[s] for s in ["Positive", "Negative", "Neutral"]],
-                                "Percentage": [sentiment_counts_post.get(s, 0) for s in ["Positive", "Negative", "Neutral"]]
-                            }).set_index("Sentiment")
+                                "Sentiment": ["🙂 Positive", "😡 Negative", "😐 Neutral"],
+                                "Percentage": [
+                                    sentiment_counts_post.get("Positive", 0),
+                                    sentiment_counts_post.get("Negative", 0),
+                                    sentiment_counts_post.get("Neutral", 0)
+                                ]
+                            })
                             
-                            # Display bar chart
-                            st.bar_chart(df_plot)
-                
+                            # Create bar chart
+                            fig = px.bar(
+                                df_plot,
+                                x="Sentiment",
+                                y="Percentage",
+                                text="Percentage",
+                                color="Sentiment",
+                                color_discrete_map={
+                                    "🙂 Positive": "green",
+                                    "😡 Negative": "red",
+                                    "😐 Neutral": "gray"
+                                }
+                            )
+                            
+                            # Customize layout
+                            fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+                            fig.update_layout(
+                                yaxis_title="Percentage (%)",
+                                xaxis_title="",
+                                showlegend=False,
+                                uniformtext_minsize=12,
+                                uniformtext_mode='hide'
+                            )
+                            
+                            st.plotly_chart(fig, use_container_width=True)
+
                         st.markdown("---")
 
                     # st.markdown("---")
