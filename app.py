@@ -320,7 +320,7 @@ if "scraped_df" in st.session_state:
                 tags, counts = zip(*top_hashtags_user)
                 df_hashtags_user = pd.DataFrame({"Hashtag": tags, "Frequency": counts})
 
-                st.markdown(f"### 🔖 Top Hashtags for {selected_user} (All Posts)")
+                # st.markdown(f"### 🔖 Top Hashtags for {selected_user} (All Posts)")
                 fig_hashtags_user = px.bar(
                     df_hashtags_user.sort_values("Frequency"),
                     x="Frequency",
@@ -328,7 +328,7 @@ if "scraped_df" in st.session_state:
                     orientation='h',
                     text="Frequency",
                     labels={"Frequency": "Count", "Hashtag": "Hashtags"},
-                    title=f"Top 10 Hashtags for {selected_user}"
+                    title=f" 🔖 Top 10 Hashtags for {selected_user}"
                 )
                 fig_hashtags_user.update_traces(texttemplate='%{text}', textposition='outside', marker_color='lightblue')
                 fig_hashtags_user.update_layout(
