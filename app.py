@@ -353,7 +353,21 @@ if "scraped_df" in st.session_state:
                                 f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
                                 f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
                             )
-                            st.bar_chart(sentiment_counts_post)
+                            # Map sentiment labels to emojis
+                            emoji_map = {
+                                "Positive": "🙂",
+                                "Negative": "😡",
+                                "Neutral": "😐"
+                            }
+                            
+                            # Prepare DataFrame for bar chart
+                            df_plot = pd.DataFrame({
+                                "Sentiment": [emoji_map[s] for s in ["Positive", "Negative", "Neutral"]],
+                                "Percentage": [sentiment_counts_post.get(s, 0) for s in ["Positive", "Negative", "Neutral"]]
+                            }).set_index("Sentiment")
+                            
+                            # Display bar chart
+                            st.bar_chart(df_plot)
                 
                         st.markdown("---")
 
