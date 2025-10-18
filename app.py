@@ -375,7 +375,7 @@ if "scraped_df" in st.session_state:
                     #             st.dataframe(comments_only[["Comments"]].reset_index(drop=True), use_container_width=True)
                     #     else:
                     #         st.info("No comments available for this post.")
-                    # st.markdown("---")
+                    st.markdown("---")
 
                 # Download Button for Selected Posts (User-wise)
                 download_df_user = multi_posts_user.copy()
