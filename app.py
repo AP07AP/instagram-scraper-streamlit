@@ -419,16 +419,16 @@ if "scraped_df" in st.session_state:
                                 else:
                                     st.info("No hashtags found for this post.")
 
-                    # Download Button for Selected Posts (User-wise)
-                    download_df_user = multi_posts_user.copy()
-                    download_df_user["Likes"] = download_df_user["Likes"].astype(int)
-                    csv_bytes_user = download_df_user.to_csv(index=False).encode("utf-8")
-                    st.download_button(
-                        label=f"📥 Download Selected Posts for {selected_user}",
-                        data=csv_bytes_user,
-                        file_name=f"{selected_user}_selected_posts.csv",
-                        mime="text/csv"
-                    )
+                # Download Button for Selected Posts (User-wise)
+                download_df_user = multi_posts_user.copy()
+                download_df_user["Likes"] = download_df_user["Likes"].astype(int)
+                csv_bytes_user = download_df_user.to_csv(index=False).encode("utf-8")
+                st.download_button(
+                    label=f"📥 Download Selected Posts for {selected_user}",
+                    data=csv_bytes_user,
+                    file_name=f"{selected_user}_selected_posts.csv",
+                    mime="text/csv"
+                )
 
             # Download Overall User Data as Excel
             excel_buffer_user = BytesIO()
