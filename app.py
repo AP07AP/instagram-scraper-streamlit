@@ -271,6 +271,7 @@ if "scraped_df" in st.session_state:
         # -------------------------------
         # User Overview for Selected Users + User-wise Post Exploration + Download
         # -------------------------------
+        
         for selected_user in selected_users:
             st.markdown(f"## 👤 User Overview: {selected_user}")
             filtered = df[df["username"] == selected_user]
@@ -319,29 +320,65 @@ if "scraped_df" in st.session_state:
             if selected_posts_user:
                 multi_posts_user = filtered[filtered["URL"].isin(selected_posts_user)]
                 st.subheader(f"📝 Selected Posts Details: {selected_user}")
+
                 for url in selected_posts_user:
                     post_group = multi_posts_user[multi_posts_user["URL"] == url]
                     caption_row = post_group[post_group["Caption"].notna()]
+                
+                    # Total comments for this post
                     total_comments_post = post_group["Comments"].notna().sum()
+                
                     if not caption_row.empty:
                         row = caption_row.iloc[0]
+                
+                        # Format likes and comments
+                        likes_formatted = format_indian_number(row["Likes"])
+                        comments_formatted = format_indian_number(total_comments_post)
+                
                         st.markdown(
                             f"**Caption:** {row['Caption']}  \n"
-                            f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])} 💬 Comments: {format_indian_number(total_comments_post)}  \n"
+                            f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {likes_formatted} 💬 Comments: {comments_formatted}  \n"
                             f"🔗 [View Post]({url})"
                         )
+                
+                        # Calculate post sentiment (if comments exist)
+                        comments_with_sentiment = post_group[post_group["Comments"].notna()]
+                        if not comments_with_sentiment.empty and "Sentiment_label" in comments_with_sentiment.columns:
+                            sentiment_counts_post = (
+                                comments_with_sentiment["Sentiment_label"].astype(str).str.title().value_counts(normalize=True) * 100
+                            )
+                            st.markdown(
+                                f"**Post Sentiment:**  \n"
+                                f"🙂 Positive: {sentiment_counts_post.get('Positive', 0):.1f}% | "
+                                f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
+                                f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
+                            )
+                
+                        st.markdown("---")
+                
+                # for url in selected_posts_user:
+                #     post_group = multi_posts_user[multi_posts_user["URL"] == url]
+                #     caption_row = post_group[post_group["Caption"].notna()]
+                #     total_comments_post = post_group["Comments"].notna().sum()
+                #     if not caption_row.empty:
+                #         row = caption_row.iloc[0]
+                #         st.markdown(
+                #             f"**Caption:** {row['Caption']}  \n"
+                #             f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {format_indian_number(row['Likes'])} 💬 Comments: {format_indian_number(total_comments_post)}  \n"
+                #             f"🔗 [View Post]({url})"
+                #         )
 
                         
-                        # Calculate Post Sentiment
-                        sentiment_counts_post = post_group[post_group["Comments"].notna()]["Sentiment_label"].astype(str).str.title().value_counts(normalize=True) * 100
-                        st.markdown(
-                            f"**Post Sentiment:**  \n"
-                            f"🙂 Positive: {sentiment_counts_post.get('Positive', 0):.1f}% | "
-                            f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
-                            f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
-                        )
+                #         # Calculate Post Sentiment
+                #         sentiment_counts_post = post_group[post_group["Comments"].notna()]["Sentiment_label"].astype(str).str.title().value_counts(normalize=True) * 100
+                #         st.markdown(
+                #             f"**Post Sentiment:**  \n"
+                #             f"🙂 Positive: {sentiment_counts_post.get('Positive', 0):.1f}% | "
+                #             f"😡 Negative: {sentiment_counts_post.get('Negative', 0):.1f}% | "
+                #             f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
+                #         )
                         
-                        st.markdown("---")  # optional separator between posts
+                #         st.markdown("---")  # optional separator between posts
 
                     st.markdown("---")
 
