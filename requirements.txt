@@ -9,3 +9,4 @@ torchaudio
 requests
 emoji
 tqdm
+openpyxl
