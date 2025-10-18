@@ -337,8 +337,8 @@ if "scraped_df" in st.session_state:
                 
                         st.markdown(
                             f"**Caption:** {row['Caption']}  \n"
-                            f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {likes_formatted} 💬 Comments: {comments_formatted}  \n"
-                            f"🔗 [View Post]({url})"
+                            f"🔗 [View Post]({url}) 📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {likes_formatted} 💬 Comments: {comments_formatted}  \n"
+                            # f"🔗 [View Post]({url})"
                         )
                 
                         # Calculate post sentiment (if comments exist)
