@@ -333,6 +333,7 @@ if "scraped_df" in st.session_state:
                 fig_hashtags_user.update_traces(
                     texttemplate='%{text}',
                     textposition='inside',
+                    textangle=0,
                     insidetextanchor='middle',  # center the text inside the bar
                     marker_color='lightblue'
                 )
