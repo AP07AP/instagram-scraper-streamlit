@@ -330,9 +330,14 @@ if "scraped_df" in st.session_state:
                     labels={"Frequency": "Count", "Hashtag": "Hashtags"},
                     title=f"Top 10 Hashtags for {selected_user}"
                 )
-                fig_hashtags_user.update_traces(texttemplate='%{text}', textposition='inside', marker_color='lightblue')
+                fig_hashtags_user.update_traces(
+                    texttemplate='%{text}',
+                    textposition='inside',
+                    insidetextanchor='middle',  # center the text inside the bar
+                    marker_color='lightblue'
+                )
                 fig_hashtags_user.update_layout(
-                    yaxis=dict(autorange="reversed"),
+                    yaxis=dict(autorange="reversed"),  # highest frequency at top
                     xaxis_title="Frequency",
                     yaxis_title="Hashtags",
                     uniformtext_minsize=12,
@@ -341,6 +346,7 @@ if "scraped_df" in st.session_state:
                 st.plotly_chart(fig_hashtags_user, use_container_width=True)
             else:
                 st.info(f"No hashtags found for {selected_user}.")
+
 
 
             # User-wise Post Exploration
