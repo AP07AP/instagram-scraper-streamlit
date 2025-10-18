@@ -339,7 +339,7 @@ if "scraped_df" in st.session_state:
                             f"😐 Neutral: {sentiment_counts_post.get('Neutral', 0):.1f}%"
                         )
                         
-                        st.markdown("---")  # optional separator between posts
+                        # st.markdown("---")  # optional separator between posts
 
                     #     st.markdown(
                     #         f"**Caption:** {row['Caption']}  \n"
