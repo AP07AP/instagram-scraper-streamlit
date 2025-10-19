@@ -223,18 +223,18 @@ if "scraped_df" in st.session_state:
     neg_pct = sentiment_counts.get("Negative", 0.0)
     neu_pct = sentiment_counts.get("Neutral", 0.0)
 
-    col1, col2, col3 = st.columns([1,1.5,1.5])
+    col1, col2, col3 = st.columns([1,1,1])
     with col1:
-        st.write(f"📄 **Posts:** {format_indian_number(total_posts)}")
+        st.write(f"📄 **Total Posts:** {format_indian_number(total_posts)}")
     with col2:
-        st.write(f"❤️ **Likes:** {format_indian_number(total_likes)}")
+        st.write(f"❤️ **Total Likes:** {format_indian_number(total_likes)}")
     with col3:
-        st.write(f"💬 **Comments:** {format_indian_number(total_comments)}")
+        st.write(f"💬 **Total Comments:** {format_indian_number(total_comments)}")
 
         # -------------------------------
     # Sentiment Visualization + Top Hashtags (Overall)
     # -------------------------------
-    st.markdown("### 📈 Sentiment Distribution & Top Hashtags (Overall)")
+    # st.markdown("## 📈 Sentiment Distribution & Top Hashtags")
 
     # Prepare sentiment dataframe
     df_sentiment_overall = pd.DataFrame({
