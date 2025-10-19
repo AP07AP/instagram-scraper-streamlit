@@ -1,4 +1,3 @@
-# sentiment_model.py
 import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -107,8 +106,8 @@ rules_dict={
 class EnhancedTeluguPreprocessor:
     def __init__(self, rules_dict=rules_dict):
         self.rules = rules_dict
-        self.negations = self.rules.get("negation_words", {})
-        self.boosters = self.rules.get("booster_words", {})
+        self.negations = {word: "not" for word in self.rules.get("negation_words", [])}
+        self.boosters = {word: word for word in self.rules.get("booster_words", [])}
         self.translit_variants = self.rules.get("translit_variants", {})
         self.punctuation_pattern = re.compile(r"[^\w\s]", re.UNICODE)
 
@@ -163,18 +162,27 @@ class MuRILSentiment:
         confidence = probs[pred_idx] * 100
         return sentiment, confidence
 
-def analyze_comments(df: pd.DataFrame, column="Comments") -> pd.DataFrame:
+# Define emoji removal function
+
+def remove_emojis(text):
+    if not isinstance(text, str):
+        return text
+    return emoji.replace_emoji(text, replace='')
+df_1=df
+df_1['Comments'] = df_1['Comments'].apply(remove_emojis).str.strip()
+
+def analyze_comments(df_1: pd.DataFrame, column="Comments") -> pd.DataFrame:
     """Run sentiment analysis on a dataframe's column"""
-    model = MuRILSentiment()
+    model = MuRILSentiment(model_name="DSL-13-SRMAP/MuRIL_WR", rules_dict=rules_dict)
     sentiments, confidences = [], []
 
-    for text in tqdm(df[column].astype(str), desc="Analyzing Sentiments"):
+    for text in tqdm(df_1[column].astype(str), desc="Analyzing Sentiments"):
         sentiment, confidence = model.predict(text)
         sentiments.append(sentiment)
         confidences.append(confidence)
 
-    df['Sentiment_label'] = sentiments
-    df['Confidence_score'] = confidences
+    df_1['Sentiment_label'] = sentiments
+    df_1['Confidence_score'] = confidences
     sentiment_map = {"negative": -1, "neutral": 0, "positive": 1}
-    df['Sentiment_score'] = df['Sentiment_label'].map(sentiment_map)
-    return df
+    df_1['Sentiment_score'] = df_1['Sentiment_label'].map(sentiment_map)
+    return df_1
