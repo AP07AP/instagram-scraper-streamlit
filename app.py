@@ -508,7 +508,7 @@ if "scraped_df" in st.session_state:
 
                         st.markdown(
                             f"**Caption:** {row['Caption']} 🔗 [View Post]({url})  \n\n"
-                            f"📅 {row['Date'].date()} 🕒 {row['Time']} ❤️ Likes: {likes_formatted} 💬 Comments: {comments_formatted}  \n"
+                            f"📅 {row['Date'].date()}  🕒 {row['Time']}  ❤️ Likes: {likes_formatted}  💬 Comments: {comments_formatted}  \n"
                         )
 
                         # Calculate post sentiment (if comments exist)
@@ -519,7 +519,7 @@ if "scraped_df" in st.session_state:
                             )
 
                             # -------------------------
-                            # --- Plot Sentiment & Hashtags Side-by-Side ---
+                            # --- Plot Sentiment Only ---
                             # -------------------------
                             df_sentiment = pd.DataFrame({
                                 "Sentiment": ["🙂 Positive", "😡 Negative", "😐 Neutral"],
@@ -529,24 +529,13 @@ if "scraped_df" in st.session_state:
                                     sentiment_counts_post.get("Neutral", 0)
                                 ]
                             })
-
-                            # Top 5 Hashtags
-                            hashtags_list = post_group['Hashtags'].dropna().tolist()
-                            all_hashtags = []
-                            for h in hashtags_list:
-                                all_hashtags.extend([tag.strip() for tag in h.split(",")])
-
-                            from collections import Counter
-                            top_hashtags = Counter(all_hashtags).most_common(5)
-                            if top_hashtags:
-                                tags, counts = zip(*top_hashtags)
-                                df_hashtags = pd.DataFrame({"Hashtag": tags, "Frequency": counts})
-                            else:
-                                df_hashtags = pd.DataFrame({"Hashtag": [], "Frequency": []})
-
-                            col_sent, col_hash = st.columns([1,1])
-
+                            
+                            # Create a column just for sentiment
+                            col_sent = st.container()
+                            
                             with col_sent:
+                                y_max = df_sentiment["Percentage"].max()
+                                y_limit = y_max + 5  # Add small margin so labels don’t get cut
                                 fig_sent = px.bar(
                                     df_sentiment,
                                     x="Sentiment",
@@ -557,40 +546,24 @@ if "scraped_df" in st.session_state:
                                         "🙂 Positive": "green",
                                         "😡 Negative": "red",
                                         "😐 Neutral": "gray"
-                                    }
+                                    },
+                                    title="Sentiment Distribution"
                                 )
-                                fig_sent.update_traces(texttemplate='%{text:.1f}%', textposition='outside', marker_line_width=0.5)
+                                fig_sent.update_traces(
+                                    texttemplate='%{text:.1f}%',
+                                    textposition='outside',
+                                    marker_line_width=0.5
+                                )
                                 fig_sent.update_layout(
                                     yaxis_title="Percentage",
                                     xaxis_title="",
                                     showlegend=False,
                                     uniformtext_minsize=12,
-                                    uniformtext_mode='hide'
+                                    uniformtext_mode='hide',
+                                    yaxis=dict(range=[0, y_limit]),
+                                    title_x=0.4
                                 )
                                 st.plotly_chart(fig_sent, use_container_width=True)
-
-                            with col_hash:
-                                if not df_hashtags.empty:
-                                    fig_hash = px.bar(
-                                        df_hashtags.sort_values("Frequency"),
-                                        x="Frequency",
-                                        y="Hashtag",
-                                        orientation='h',
-                                        text="Frequency",
-                                        labels={"Frequency": "Count", "Hashtag": "Hashtags"},
-                                        title="Top 5 Hashtags"
-                                    )
-                                    fig_hash.update_traces(texttemplate='%{text}', textposition='outside', marker_color='lightblue')
-                                    fig_hash.update_layout(
-                                        yaxis=dict(autorange="reversed"),  # highest frequency at top
-                                        xaxis_title="Frequency",
-                                        yaxis_title="Hashtags",
-                                        uniformtext_minsize=12,
-                                        uniformtext_mode='hide'
-                                    )
-                                    st.plotly_chart(fig_hash, use_container_width=True)
-                                else:
-                                    st.info("No hashtags found for this post.")
 
                 # Download Button for Selected Posts (User-wise)
                 download_df_user = multi_posts_user.copy()
