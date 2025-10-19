@@ -107,14 +107,16 @@ rules_dict={
 class EnhancedTeluguPreprocessor:
     def __init__(self, rules_dict=rules_dict):
         self.rules = rules_dict
-        self.negations = self.rules.get("negation_words", {})
-        self.boosters = self.rules.get("booster_words", {})
+        # Convert lists to dictionaries so _apply_rules works correctly
+        self.negations = {word: word for word in self.rules.get("negation_words", [])}
+        self.boosters = {word: word for word in self.rules.get("booster_words", [])}
         self.translit_variants = self.rules.get("translit_variants", {})
         self.punctuation_pattern = re.compile(r"[^\w\s]", re.UNICODE)
 
     def _apply_rules(self, text, mapping):
         for key, val in mapping.items():
-            text = re.sub(rf"\b{key}\b", val, text, flags=re.IGNORECASE)
+            # Replace word boundaries only
+            text = re.sub(rf"\b{re.escape(key)}\b", val, text, flags=re.IGNORECASE)
         return text
 
     def _normalize_emoji(self, text):
