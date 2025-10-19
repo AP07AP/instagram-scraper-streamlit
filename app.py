@@ -249,7 +249,7 @@ if "scraped_df" in st.session_state:
         all_hashtags_overall.extend([tag.strip() for tag in h.split(",")])
 
     from collections import Counter
-    top_hashtags_overall = Counter(all_hashtags_overall).most_common(5)
+    top_hashtags_overall = Counter(all_hashtags_overall).most_common(10)
     if top_hashtags_overall:
         tags, counts = zip(*top_hashtags_overall)
         df_hashtags_overall = pd.DataFrame({"Hashtag": tags, "Frequency": counts})
