@@ -107,15 +107,14 @@ rules_dict={
 class EnhancedTeluguPreprocessor:
     def __init__(self, rules_dict=rules_dict):
         self.rules = rules_dict
-        # Convert lists to dictionaries so _apply_rules works correctly
-        self.negations = {word: word for word in self.rules.get("negation_words", [])}
+        # Convert lists to dicts for _apply_rules
+        self.negations = {word: "not" for word in self.rules.get("negation_words", [])}
         self.boosters = {word: word for word in self.rules.get("booster_words", [])}
         self.translit_variants = self.rules.get("translit_variants", {})
         self.punctuation_pattern = re.compile(r"[^\w\s]", re.UNICODE)
 
     def _apply_rules(self, text, mapping):
         for key, val in mapping.items():
-            # Replace word boundaries only
             text = re.sub(rf"\b{re.escape(key)}\b", val, text, flags=re.IGNORECASE)
         return text
 
@@ -130,6 +129,8 @@ class EnhancedTeluguPreprocessor:
         return text
 
     def preprocess(self, text):
+        if not isinstance(text, str):
+            return ""
         text = text.strip().lower()
         text = self._apply_rules(text, self.translit_variants)
         text = self._apply_rules(text, self.negations)
@@ -138,7 +139,9 @@ class EnhancedTeluguPreprocessor:
         text = self.punctuation_pattern.sub("", text)
         return text
 
-
+# ------------------------
+# Sentiment Model Wrapper
+# ------------------------
 class MuRILSentiment:
     def __init__(self, model_name="DSL-13-SRMAP/MuRIL_WR", rules_dict=rules_dict):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -165,12 +168,23 @@ class MuRILSentiment:
         confidence = probs[pred_idx] * 100
         return sentiment, confidence
 
+# ------------------------
+# Emoji Removal Function
+# ------------------------
+def remove_emojis(text):
+    if not isinstance(text, str):
+        return text
+    return emoji.replace_emoji(text, replace='')
+
+# ------------------------
+# Sentiment Analysis on DataFrame
+# ------------------------
 def analyze_comments(df: pd.DataFrame, column="Comments") -> pd.DataFrame:
-    """Run sentiment analysis on a dataframe's column"""
-    model = MuRILSentiment()
+    df[column] = df[column].fillna("").astype(str).apply(remove_emojis).str.strip()
+    model = MuRILSentiment(model_name="DSL-13-SRMAP/MuRIL_WR", rules_dict=rules_dict)
     sentiments, confidences = [], []
 
-    for text in tqdm(df[column].astype(str), desc="Analyzing Sentiments"):
+    for text in tqdm(df[column], desc="Analyzing Sentiments", disable=True):
         sentiment, confidence = model.predict(text)
         sentiments.append(sentiment)
         confidences.append(confidence)
