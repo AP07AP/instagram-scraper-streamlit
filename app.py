@@ -301,7 +301,7 @@ if "scraped_df" in st.session_state:
             )
             fig_hash_overall.update_traces(
                 texttemplate='%{text}',
-                textposition='inside',
+                textposition='auto',
                 textangle=0,
                 insidetextanchor='middle',
                 marker_color='lightblue',
