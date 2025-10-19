@@ -433,12 +433,12 @@ if "scraped_df" in st.session_state:
                         "😡 Negative": "red",
                         "😐 Neutral": "gray"
                     },
-                    title=f"Sentiment Distribution for {selected_user}"
+                    title=f"Sentiment Distribution"
                 )
                 fig_sent_user.update_traces(
                     texttemplate='%{text:.1f}%',
                     textposition='outside',
-                    marker_line_width=0.5
+                    marker_line_width=0.3
                 )
                 fig_sent_user.update_layout(
                     title_x=0.5,
@@ -460,7 +460,7 @@ if "scraped_df" in st.session_state:
                         orientation='h',
                         text="Frequency",
                         labels={"Frequency": "Count", "Hashtag": "Hashtags"},
-                        title=f"Top 10 Hashtags for {selected_user}"
+                        title=f"Top 10 Hashtags"
                     )
                     fig_hash_user.update_traces(
                         texttemplate='%{text}',
