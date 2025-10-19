@@ -560,7 +560,7 @@ if "scraped_df" in st.session_state:
                                     showlegend=False,
                                     uniformtext_minsize=12,
                                     uniformtext_mode='hide',
-                                    # yaxis=dict(range=[0, y_limit]),
+                                    yaxis=dict(range=[0, y_limit]),
                                     title_x=0.4
                                 )
                                 st.plotly_chart(fig_sent, use_container_width=True)
