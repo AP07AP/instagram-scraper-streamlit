@@ -257,7 +257,7 @@ if "scraped_df" in st.session_state:
     else:
         df_hashtags_overall = pd.DataFrame({"Hashtag": [], "Frequency": []})
     
-    col_sent_overall, col_hash_overall = st.columns([1, 2])
+    col_sent_overall, col_hash_overall = st.columns([1, 1.5])
     
     with col_sent_overall:
         fig_sent_overall = px.bar(
