@@ -435,6 +435,7 @@ if "scraped_df" in st.session_state:
                     marker_line_width=0.5
                 )
                 fig_sent_user.update_layout(
+                    title_x=0.2,
                     yaxis_title="Percentage",
                     xaxis_title="",
                     showlegend=False,
@@ -464,6 +465,7 @@ if "scraped_df" in st.session_state:
                         cliponaxis=False
                     )
                     fig_hash_user.update_layout(
+                        title_x=0.2,
                         yaxis=dict(autorange="reversed"),
                         xaxis_title="Frequency",
                         yaxis_title="Hashtags",
