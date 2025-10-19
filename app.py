@@ -260,6 +260,8 @@ if "scraped_df" in st.session_state:
     col_sent_overall, col_hash_overall = st.columns([1, 1.5])
     
     with col_sent_overall:
+        y_max = df_sentiment_overall["Percentage"].max()
+        y_limit = y_max + 10  # add margin so text labels aren’t cut
         fig_sent_overall = px.bar(
             df_sentiment_overall,
             x="Sentiment",
