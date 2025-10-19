@@ -371,7 +371,7 @@ if "scraped_df" in st.session_state:
             neg_pct = sentiment_counts_user.get("Negative", 0.0)
             neu_pct = sentiment_counts_user.get("Neutral", 0.0)
 
-            col1, col2, col3, col4, col5 = st.columns([2,1,1,1,2])
+            col1, col2, col3, col4 = st.columns([1,1,1,1])
             with col1:
                 img_path = f"{selected_user}.jpg"
                 try:
@@ -385,15 +385,9 @@ if "scraped_df" in st.session_state:
                 st.write(f"❤️ **Total Likes:** {format_indian_number(total_likes)}")
             with col4:
                 st.write(f"💬 **Total Comments:** {format_indian_number(total_comments)}")
-            with col5:
-                st.markdown(
-                    f"**Overall Sentiment:**  \n"
-                    f"🙂 Positive: {pos_pct:.1f}%  \n"
-                    f"😡 Negative: {neg_pct:.1f}%  \n"
-                    f"😐 Neutral: {neu_pct:.1f}%"
-                )
+    
             # -------------------------------
-            st.markdown(f"### 📊 Sentiment Distribution & Top Hashtags for {selected_user}")
+            # st.markdown(f"### 📊 Sentiment Distribution & Top Hashtags for {selected_user}")
 
             # Sentiment DataFrame
             df_sentiment_user = pd.DataFrame({
@@ -438,10 +432,10 @@ if "scraped_df" in st.session_state:
                 fig_sent_user.update_traces(
                     texttemplate='%{text:.1f}%',
                     textposition='outside',
-                    marker_line_width=0.3
+                    marker_line_width=0.5
                 )
                 fig_sent_user.update_layout(
-                    title_x=0.5,
+                    title_x=0.3,
                     yaxis_title="Percentage",
                     xaxis_title="",
                     showlegend=False,
@@ -471,7 +465,7 @@ if "scraped_df" in st.session_state:
                         cliponaxis=False
                     )
                     fig_hash_user.update_layout(
-                        title_x=0.5,
+                        title_x=0.0,
                         yaxis=dict(autorange="reversed"),
                         xaxis_title="Frequency",
                         yaxis_title="Hashtags",
