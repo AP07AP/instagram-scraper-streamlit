@@ -460,7 +460,7 @@ if "scraped_df" in st.session_state:
                         orientation='h',
                         text="Frequency",
                         labels={"Frequency": "Count", "Hashtag": "Hashtags"},
-                        title=f"Top 10 Hashtags"
+                        title=f"Top 10 Hashtags for {selected_user}"
                     )
                     fig_hash_user.update_traces(
                         texttemplate='%{text}',
