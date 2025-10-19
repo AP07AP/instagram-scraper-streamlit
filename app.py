@@ -279,7 +279,7 @@ if "scraped_df" in st.session_state:
             marker_line_width=0.5
         )
         fig_sent_overall.update_layout(
-            title_x=0,  # Center the title
+            title_x=0.5,  # Center the title
             yaxis_title="Percentage",
             xaxis_title="",
             showlegend=False,
@@ -304,7 +304,8 @@ if "scraped_df" in st.session_state:
                 textposition='inside',
                 textangle=0,
                 insidetextanchor='middle',
-                marker_color='lightblue'
+                marker_color='lightblue',
+                cliponaxis=False
             )
             fig_hash_overall.update_layout(
                 title_x=0.5,  # Center the title
@@ -312,7 +313,8 @@ if "scraped_df" in st.session_state:
                 xaxis_title="Frequency",
                 yaxis_title="Hashtags",
                 uniformtext_minsize=12,
-                uniformtext_mode='hide'
+                uniformtext_mode='hide',
+                bargap=0.3
             )
             st.plotly_chart(fig_hash_overall, use_container_width=True)
         else:
