@@ -465,7 +465,7 @@ if "scraped_df" in st.session_state:
                         cliponaxis=False
                     )
                     fig_hash_user.update_layout(
-                        title_x=0.3,
+                        title_x=0.2,
                         yaxis=dict(autorange="reversed"),
                         xaxis_title="Frequency",
                         yaxis_title="Hashtags",
