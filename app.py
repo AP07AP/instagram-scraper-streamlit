@@ -371,13 +371,13 @@ if "scraped_df" in st.session_state:
             neg_pct = sentiment_counts_user.get("Negative", 0.0)
             neu_pct = sentiment_counts_user.get("Neutral", 0.0)
 
-            col1, col2, col3, col4 = st.columns([1.1,1,1,1.1])
-            with col1:
-                img_path = f"{selected_user}.jpg"
-                try:
-                    st.image(img_path, width=150, caption=selected_user)
-                except Exception:
-                    st.markdown(f"**Name:** {selected_user}")
+            col2, col3, col4 = st.columns([1,1,1])
+            # with col1:
+            #     img_path = f"{selected_user}.jpg"
+            #     try:
+            #         st.image(img_path, width=150, caption=selected_user)
+            #     except Exception:
+            #         st.markdown(f"**Name:** {selected_user}")
 
             with col2:
                 st.write(f"📄 **Total Posts:** {format_indian_number(total_posts)}")
