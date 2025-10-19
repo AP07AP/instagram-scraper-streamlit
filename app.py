@@ -281,12 +281,13 @@ if "scraped_df" in st.session_state:
             marker_line_width=0.5
         )
         fig_sent_overall.update_layout(
-            title_x=0.5,  # Center the title
+            title_x=0.3,  # Center the title
             yaxis_title="Percentage",
             xaxis_title="",
             showlegend=False,
             uniformtext_minsize=12,
-            uniformtext_mode='hide'
+            uniformtext_mode='hide',
+            yaxis=dict(range=[0, y_limit]) 
         )
         st.plotly_chart(fig_sent_overall, use_container_width=True)
     
