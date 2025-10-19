@@ -271,7 +271,7 @@ if "scraped_df" in st.session_state:
                 "😡 Negative": "red",
                 "😐 Neutral": "gray"
             },
-            title="Overall Sentiment Distribution"
+            title="Sentiment Distribution"
         )
         fig_sent_overall.update_traces(
             texttemplate='%{text:.1f}%',
@@ -297,7 +297,7 @@ if "scraped_df" in st.session_state:
                 orientation='h',
                 text="Frequency",
                 labels={"Frequency": "Count", "Hashtag": "Hashtags"},
-                title="Top 5 Hashtags (Overall)"
+                title="Top 10 Hashtags"
             )
             fig_hash_overall.update_traces(
                 texttemplate='%{text}',
