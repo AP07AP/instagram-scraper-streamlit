@@ -279,7 +279,7 @@ if "scraped_df" in st.session_state:
             marker_line_width=0.5
         )
         fig_sent_overall.update_layout(
-            title_x=0.5,  # Center the title
+            title_x=0,  # Center the title
             yaxis_title="Percentage",
             xaxis_title="",
             showlegend=False,
