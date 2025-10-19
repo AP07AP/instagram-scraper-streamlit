@@ -232,32 +232,33 @@ if "scraped_df" in st.session_state:
         st.write(f"💬 **Total Comments:** {format_indian_number(total_comments)}")
 
         # -------------------------------
+    # -------------------------------
     # Sentiment Visualization + Top Hashtags (Overall)
     # -------------------------------
-    # st.markdown("## 📈 Sentiment Distribution & Top Hashtags")
-
+    # st.markdown("### 📈 Sentiment Distribution & Top Hashtags (Overall)")
+    
     # Prepare sentiment dataframe
     df_sentiment_overall = pd.DataFrame({
         "Sentiment": ["🙂 Positive", "😡 Negative", "😐 Neutral"],
         "Percentage": [pos_pct, neg_pct, neu_pct]
     })
-
+    
     # Prepare top hashtags (overall)
     hashtags_list_overall = df['Hashtags'].dropna().tolist()
     all_hashtags_overall = []
     for h in hashtags_list_overall:
         all_hashtags_overall.extend([tag.strip() for tag in h.split(",")])
-
+    
     from collections import Counter
-    top_hashtags_overall = Counter(all_hashtags_overall).most_common(10)
+    top_hashtags_overall = Counter(all_hashtags_overall).most_common(5)
     if top_hashtags_overall:
         tags, counts = zip(*top_hashtags_overall)
         df_hashtags_overall = pd.DataFrame({"Hashtag": tags, "Frequency": counts})
     else:
         df_hashtags_overall = pd.DataFrame({"Hashtag": [], "Frequency": []})
-
+    
     col_sent_overall, col_hash_overall = st.columns([1, 1])
-
+    
     with col_sent_overall:
         fig_sent_overall = px.bar(
             df_sentiment_overall,
@@ -278,6 +279,7 @@ if "scraped_df" in st.session_state:
             marker_line_width=0.5
         )
         fig_sent_overall.update_layout(
+            title_x=0.5,  # Center the title
             yaxis_title="Percentage",
             xaxis_title="",
             showlegend=False,
@@ -285,7 +287,7 @@ if "scraped_df" in st.session_state:
             uniformtext_mode='hide'
         )
         st.plotly_chart(fig_sent_overall, use_container_width=True)
-
+    
     with col_hash_overall:
         if not df_hashtags_overall.empty:
             fig_hash_overall = px.bar(
@@ -305,6 +307,7 @@ if "scraped_df" in st.session_state:
                 marker_color='lightblue'
             )
             fig_hash_overall.update_layout(
+                title_x=0.5,  # Center the title
                 yaxis=dict(autorange="reversed"),
                 xaxis_title="Frequency",
                 yaxis_title="Hashtags",
@@ -314,6 +317,7 @@ if "scraped_df" in st.session_state:
             st.plotly_chart(fig_hash_overall, use_container_width=True)
         else:
             st.info("No hashtags found overall.")
+
 
 
     # -------------------------------
