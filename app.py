@@ -443,7 +443,7 @@ if "scraped_df" in st.session_state:
                     uniformtext_mode='hide',
                     yaxis=dict(range=[0, y_limit_user])
                 )
-                st.plotly_chart(fig_sent_user, use_container_width=True)
+                st.plotly_chart(fig_sent_user, use_container_width=True, key=f"sent_chart_{selected_user}")
         
             with col_hash_user:
                 if not df_hashtags_user.empty:
