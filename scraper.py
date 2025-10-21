@@ -18,7 +18,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 def scrape_instagram(profile_url, start_date, end_date, username=None):
     # Hardcode credentials if not provided
-    
+    # if username is None:
     username = "bethe_shit"
     password = "Imthebooby"
     
@@ -90,33 +90,22 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
 
     try:
         print("🔑 Attempting login...")
-        
-        # Click login button if visible
-        try:
-            login_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//a[contains(@href, "/accounts/login/")]')))
-            login_btn.click()
-            time.sleep(random.uniform(2, 4))
-        except TimeoutException:
-            print("⚠️ Login button not found, navigating directly...")
-            driver.get("https://www.instagram.com/accounts/login/")
-            time.sleep(3)
+        driver.get("https://www.instagram.com/accounts/login/")
+        time.sleep(random.uniform(4, 6))
 
-        # Enter username
-        username_field = wait.until(EC.presence_of_element_located((By.NAME, "username")))
-        username_field.clear()
+        username_field = WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.NAME, "username"))
+        )
+        password_field = WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.NAME, "password"))
+        )
         username_field.send_keys(username)
-        time.sleep(random.uniform(1, 2))
-
-        # Enter password
-        password_field = driver.find_element(By.NAME, "password")
-        password_field.clear()
         password_field.send_keys(password)
-        time.sleep(random.uniform(1, 2))
-
-        # Submit
-        password_field.submit()
-        print("✅ Login submitted. Waiting for page load...")
-        time.sleep(random.uniform(5, 8))
+        login_button = WebDriverWait(driver, 15).until(
+            EC.element_to_be_clickable((By.XPATH, '//button[@type="submit"]'))
+        )
+        login_button.click()
+        time.sleep(random.uniform(5, 7))
 
         # Check for success
         if "login" not in driver.current_url.lower() and driver.find_elements(By.XPATH, '//a[contains(@href, "/accounts/activity/")]'):
