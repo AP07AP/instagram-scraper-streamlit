@@ -74,18 +74,6 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
     # Login via hardcoded cookies
     # ------------------------
     try:
-        # cookies = [
-        #     {"name": "csrftoken", "value": "JM74RFOI3SOzR0847ZvMfa", "domain": ".instagram.com", "path": "/"},
-        #     {"name": "datr", "value": "BYzwaMODPk1FrOWDRvKdP-MI", "domain": ".instagram.com", "path": "/"},
-        #     {"name": "dpr", "value": "1.25", "domain": ".instagram.com", "path": "/"},
-        #     {"name": "ds_user_id", "value": "72782729777", "domain": ".instagram.com", "path": "/"},
-        #     {"name": "ig_did", "value": "356B55F2-C173-46CA-BF6B-B6A34260D7AD", "domain": ".instagram.com", "path": "/"},
-        #     {"name": "mid", "value": "aPCMBQALAAEuhO8RpUZ7vfEg8cCZ", "domain": ".instagram.com", "path": "/"},
-        #     {"name": "rur", "value": "CCO\\05472782729777\\0541792131869:01feccbaf5bbb344e623bb3462b45e3e711226a1191f39d817c41c591eba77cb6af61eb8", "domain": ".instagram.com", "path": "/"},
-        #     {"name": "sessionid", "value": "72782729777%3AF944hli7Nm0cqZ%3A3%3AAYirZZzEwr-3wGecDWp2x4T96GPfKuxnXT4JkpsneA", "domain": ".instagram.com", "path": "/"},
-        #     {"name": "wd", "value": "679x730", "domain": ".instagram.com", "path": "/"}
-        # ]
-        # ------------------------
         cookies = [
             {"name": "csrftoken", "value": "Rf5IkDkC5ToB7WLxwBJXqBsEhhtacnYH", "domain": ".instagram.com", "path": "/"},
             {"name": "datr",      "value": "BYzwaMODPk1FrOWDRvKdP-MI", "domain": ".instagram.com", "path": "/"},
