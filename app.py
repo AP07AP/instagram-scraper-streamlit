@@ -563,7 +563,7 @@ if "scraped_df" in st.session_state:
                                     yaxis=dict(range=[0, y_limit]),
                                     title_x=0.4
                                 )
-                                st.plotly_chart(fig_sent, use_container_width=True)
+                                st.plotly_chart(fig_sent, use_container_width=True, key=f"sent_chart_{selected_user}_{url}")
                                 st.markdown("---")
                 
                 # Download Button for Selected Posts (User-wise)
