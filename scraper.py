@@ -98,26 +98,6 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
             {"name": "wd",        "value": "679x730", "domain": ".instagram.com", "path": "/"},
         ]
 
-# clear existing cookies (optional but sometimes helpful)
-try:
-    driver.delete_all_cookies()
-except Exception:
-    pass
-
-# add cookies
-for cookie in cookies:
-    try:
-        driver.add_cookie(cookie)
-    except Exception as e:
-        # sometimes Selenium complains about cookie attributes; print and continue
-        print("⚠️ add_cookie error for", cookie.get("name"), ":", e)
-
-# refresh to apply cookies and allow Instagram to recognise the session
-driver.refresh()
-time.sleep(4)
-print("✅ Attempted to load cookies and refreshed the page. Check if logged in.")
-
-
         for cookie in cookies:
             driver.add_cookie(cookie)
 
