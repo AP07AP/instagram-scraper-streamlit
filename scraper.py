@@ -8,7 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-# import undetected_chromedriver as uc
+import undetected_chromedriver as uc
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -17,6 +17,11 @@ import json
 sys.stdout.reconfigure(encoding='utf-8')
 
 def scrape_instagram(profile_url, start_date, end_date, username=None):
+    # Hardcode credentials if not provided
+    if username is None:
+        username = "bethe_shit"
+    password = "Imthebooby"
+    
     # Generate output filename dynamically
     start_str = datetime.strptime(start_date, "%Y-%m-%d").strftime("%m-%d")
     end_str = datetime.strptime(end_date, "%Y-%m-%d").strftime("%m-%d")
@@ -59,41 +64,72 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
         "profile.block_third_party_cookies": True,
     })
 
-    # Initialize Chrome driver
-    service = Service()  # Add path if chromedriver not in PATH
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-    # driver = uc.Chrome(options=chrome_options)
+    # Add random user-agent for extra stealth (mimics real browsers)
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    ]
+    chrome_options.add_argument(f"--user-agent={random.choice(user_agents)}")
+
+    # Initialize Chrome driver with stealth
+    driver = uc.Chrome(options=chrome_options)
     wait = WebDriverWait(driver, 10)
 
     # Open Instagram main page
     driver.get("https://www.instagram.com/")
     print("🔄 Opening Instagram...")
-    time.sleep(5)
+    time.sleep(random.uniform(3, 6))
 
     # ------------------------
-    # Login via hardcoded cookies
+    # NEW: Login via username/password
     # ------------------------
+    if not username or not password:
+        print("⚠️ Username or password missing. Exiting.")
+        driver.quit()
+        return
+
     try:
-        cookies = [
-            {"name": "csrftoken", "value": "JM74RFOI3SOzR0847ZvMfa", "domain": ".instagram.com", "path": "/"},
-            {"name": "datr", "value": "BYzwaMODPk1FrOWDRvKdP-MI", "domain": ".instagram.com", "path": "/"},
-            {"name": "dpr", "value": "1.25", "domain": ".instagram.com", "path": "/"},
-            {"name": "ds_user_id", "value": "72782729777", "domain": ".instagram.com", "path": "/"},
-            {"name": "ig_did", "value": "356B55F2-C173-46CA-BF6B-B6A34260D7AD", "domain": ".instagram.com", "path": "/"},
-            {"name": "mid", "value": "aPCMBQALAAEuhO8RpUZ7vfEg8cCZ", "domain": ".instagram.com", "path": "/"},
-            {"name": "rur", "value": "CCO\\05472782729777\\0541792131869:01feccbaf5bbb344e623bb3462b45e3e711226a1191f39d817c41c591eba77cb6af61eb8", "domain": ".instagram.com", "path": "/"},
-            {"name": "sessionid", "value": "72782729777%3AF944hli7Nm0cqZ%3A3%3AAYirZZzEwr-3wGecDWp2x4T96GPfKuxnXT4JkpsneA", "domain": ".instagram.com", "path": "/"},
-            {"name": "wd", "value": "679x730", "domain": ".instagram.com", "path": "/"}
-        ]
+        print("🔑 Attempting login...")
+        
+        # Click login button if visible
+        try:
+            login_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//a[contains(@href, "/accounts/login/")]')))
+            login_btn.click()
+            time.sleep(random.uniform(2, 4))
+        except TimeoutException:
+            print("⚠️ Login button not found, navigating directly...")
+            driver.get("https://www.instagram.com/accounts/login/")
+            time.sleep(3)
 
-        for cookie in cookies:
-            driver.add_cookie(cookie)
+        # Enter username
+        username_field = wait.until(EC.presence_of_element_located((By.NAME, "username")))
+        username_field.clear()
+        username_field.send_keys(username)
+        time.sleep(random.uniform(1, 2))
 
-        driver.refresh()
-        time.sleep(5)
-        print("✅ Logged in via hardcoded cookies, no CAPTCHA!")
+        # Enter password
+        password_field = driver.find_element(By.NAME, "password")
+        password_field.clear()
+        password_field.send_keys(password)
+        time.sleep(random.uniform(1, 2))
+
+        # Submit
+        password_field.submit()
+        print("✅ Login submitted. Waiting for page load...")
+        time.sleep(random.uniform(5, 8))
+
+        # Check for success
+        if "login" not in driver.current_url.lower() and driver.find_elements(By.XPATH, '//a[contains(@href, "/accounts/activity/")]'):
+            print("✅ Login successful!")
+        else:
+            print("⚠️ Login may have failed (checkpoint/CAPTCHA?). Check screenshot.")
+            driver.save_screenshot("login_error.png")
+            driver.quit()
+            return
+
     except Exception as e:
-        print(f"⚠️ Error loading cookies: {e}")
+        print(f"⚠️ Login error: {e}")
+        driver.save_screenshot("login_error.png")
         driver.quit()
         return
 
@@ -186,7 +222,6 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
                     print(f"✅ Comments container found for Post {post_count}")
                     # Caption
                     try:
-                        # caption_elem = comments_container.find_element(By.XPATH, '/html/body/div[4]/div[1]/div/div[3]/div/div/div/div/div[2]/div/article/div/div[2]/div/div/div[2]/div[1]/ul/div[1]/li/div/div/div[2]/div[1]/h1')
                         caption_text = caption_elem.text.strip()
                         all_comments_data.append(caption_text)
                         print(f"📝 Caption: {caption_text}")
@@ -275,7 +310,7 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
 
 # -------------------------
 # CLI Run (multi-profile, single output file)
-
+# -------------------------
 from concurrent.futures import ThreadPoolExecutor, as_completed
 if __name__ == "__main__":
     import sys
