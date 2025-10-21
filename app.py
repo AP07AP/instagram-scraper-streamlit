@@ -564,7 +564,7 @@ if "scraped_df" in st.session_state:
                                     title_x=0.4
                                 )
                                 st.plotly_chart(fig_sent, use_container_width=True)
-                st.markdown("---")
+                                st.markdown("---")
                 
                 # Download Button for Selected Posts (User-wise)
                 download_df_user = multi_posts_user.copy()
@@ -592,7 +592,6 @@ if "scraped_df" in st.session_state:
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
             st.markdown("---")
-
 
     # Full dataset download as Excel
     output = BytesIO()
