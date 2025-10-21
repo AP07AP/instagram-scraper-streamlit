@@ -590,6 +590,8 @@ if "scraped_df" in st.session_state:
                 file_name=f"{selected_user}_full_data.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+            st.markdown("---")
+
 
     # Full dataset download as Excel
     output = BytesIO()
