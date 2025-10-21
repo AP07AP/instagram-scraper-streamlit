@@ -11,3 +11,4 @@ emoji
 tqdm
 openpyxl
 plotly
+undetected-chromedriver
