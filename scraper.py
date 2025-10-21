@@ -18,8 +18,8 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 def scrape_instagram(profile_url, start_date, end_date, username=None):
     # Hardcode credentials if not provided
-    if username is None:
-        username = "bethe_shit"
+    
+    username = "bethe_shit"
     password = "Imthebooby"
     
     # Generate output filename dynamically
