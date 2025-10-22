@@ -38,7 +38,10 @@ with col1:
 with col2:
     end_date = st.date_input("End Date")
 
-username = st.text_input("Name")
+username = st.text_input(
+    "Name",
+    placeholder="Enter your Name"
+)
 
 # -------------------------------
 # Helper: Indian number format
