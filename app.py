@@ -170,7 +170,8 @@ if scrape_clicked:
         time.sleep(6)
 
     if workflow_completed:
-        st.success("🔄 Scraping in progress...")
+        # st.success("🔄 Scraping in progress...")
+        st.success("🔄 Scraping in progress... Click **Get Report**")
         st.session_state["scrape_done"] = True
     else:
         st.error("❌ Workflow timed out.")
