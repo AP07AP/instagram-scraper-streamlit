@@ -180,17 +180,28 @@ def remove_emojis(text):
 # Sentiment Analysis on DataFrame
 # ------------------------
 def analyze_comments(df: pd.DataFrame, column="Comments") -> pd.DataFrame:
-    df[column] = df[column].fillna("").astype(str).apply(remove_emojis).str.strip()
+    # Keep a copy of the original comments
+    original_comments = df[column].copy()
+
+    # Preprocess a temporary version for analysis
+    temp_comments = df[column].fillna("").astype(str).apply(remove_emojis).str.strip()
+
+    # Run sentiment model
     model = MuRILSentiment(model_name="DSL-13-SRMAP/MuRIL_WR", rules_dict=rules_dict)
     sentiments, confidences = [], []
 
-    for text in tqdm(df[column], desc="Analyzing Sentiments", disable=True):
+    for text in tqdm(temp_comments, desc="Analyzing Sentiments", disable=True):
         sentiment, confidence = model.predict(text)
         sentiments.append(sentiment)
         confidences.append(confidence)
 
+    # Add sentiment results to the dataframe
     df['Sentiment_label'] = sentiments
     df['Confidence_score'] = confidences
     sentiment_map = {"negative": -1, "neutral": 0, "positive": 1}
     df['Sentiment_score'] = df['Sentiment_label'].map(sentiment_map)
+
+    # Restore original comments column
+    df[column] = original_comments
+
     return df
