@@ -182,7 +182,7 @@ if scrape_clicked:
 if report_clicked and st.session_state.get("scrape_done", False):
     artifact_name = st.session_state.get("artifact_name", ARTIFACT_NAME)
     # st.info(f"📦 Fetching artifact `{artifact_name}` ...")
-    st.info(f"📦 Fetching Dataset ...")
+    st.info(f"📦 Fetching Dataset `{artifact_name}` ...")
 
     df = fetch_artifact_csv(REPO, GITHUB_TOKEN, artifact_name)
     if df is None or df.empty:
