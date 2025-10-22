@@ -573,7 +573,7 @@ if "scraped_df" in st.session_state:
                                     title_x=0.4
                                 )
                                 st.plotly_chart(fig_sent, use_container_width=True, key=f"sent_chart_{selected_user}_{url}")
-                                st.markdown("---")
+                                # st.markdown("---")
                 
                 # Download Button for Selected Posts (User-wise)
                 download_df_user = multi_posts_user.copy()
