@@ -28,7 +28,7 @@ st.title("📸 Instagram Insights Dashboard")
 # Scraper Inputs
 # -------------------------------
 profile_url = st.text_area(
-    "Enter one or more Instagram Profile URLs or Usernames (comma-separated or one per line)",
+    "Enter one or more Instagram Profile URLs or Usernames (comma separated or one per line)",
     height=20,
     placeholder="https://www.instagram.com/user1/"
 )
