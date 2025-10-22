@@ -28,7 +28,7 @@ st.title("📸 Instagram Insights Dashboard")
 # Scraper Inputs
 # -------------------------------
 profile_url = st.text_area(
-    "Enter one or more Instagram Profile URLs (comma-separated or one per line)",
+    "Enter one or more Instagram Profile URLs or Usernames (comma-separated or one per line)",
     height=20,
     placeholder="https://www.instagram.com/user1/"
 )
@@ -79,7 +79,8 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
         time.sleep(6)
 
     if not artifact_found:
-        st.error(f"❌ Artifact {artifact_name} not found yet. Try again in a few seconds.")
+        # st.error(f"❌ Artifact {artifact_name} not found yet. Try again in a few seconds.")
+        st.error(f"❌ Dataset not found yet. Try again in a few seconds.")
         st.stop()
 
     # Download artifact
@@ -87,13 +88,15 @@ def fetch_artifact_csv(repo, token, artifact_name=ARTIFACT_NAME):
     artifacts = r.json().get("artifacts", [])
     artifact = next((a for a in artifacts if a["name"] == artifact_name), None)
     if not artifact:
-        st.error(f"❌ Artifact {artifact_name} not found.")
+        # st.error(f"❌ Artifact {artifact_name} not found.")
+        st.error(f"❌ Dataset not found.")
         return None
 
     download_url = artifact["archive_download_url"]
     r = requests.get(download_url, headers=headers)
     if r.status_code != 200:
-        st.error("❌ Failed to download artifact.")
+        # st.error("❌ Failed to download artifact.")
+        st.error("❌ Failed to download Dataset.")
         return None
 
     zipfile = ZipFile(BytesIO(r.content))
@@ -125,7 +128,8 @@ if scrape_clicked:
     unique_id = uuid.uuid4().hex[:6]
     st.session_state["artifact_name"] = f"scraped_data_{username}_{unique_id}"
 
-    st.info(f"🚀 Triggering scraper workflow for artifact: `{st.session_state['artifact_name']}`")
+    # st.info(f"🚀 Triggering scraper workflow for artifact: `{st.session_state['artifact_name']}`")
+    st.info(f"🚀 Scraping Started")
 
     headers = {
         "Accept": "application/vnd.github+json",
@@ -153,7 +157,8 @@ if scrape_clicked:
         st.error(f"❌ Failed to trigger workflow: {r.text}")
         st.stop()
 
-    st.info("⏳ Waiting for workflow to complete (up to 5 mins)...")
+    # st.info("⏳ Waiting for workflow to complete (up to 5 mins)...")
+    st.info("⏳ Waiting for scraping to complete (up to 5 mins)...")
 
     workflow_completed = False
     for _ in range(600):  # ~10 mins
@@ -176,7 +181,8 @@ if scrape_clicked:
 # -------------------------------
 if report_clicked and st.session_state.get("scrape_done", False):
     artifact_name = st.session_state.get("artifact_name", ARTIFACT_NAME)
-    st.info(f"📦 Fetching artifact `{artifact_name}` ...")
+    # st.info(f"📦 Fetching artifact `{artifact_name}` ...")
+    st.info(f"📦 Fetching Dataset ...")
 
     df = fetch_artifact_csv(REPO, GITHUB_TOKEN, artifact_name)
     if df is None or df.empty:
