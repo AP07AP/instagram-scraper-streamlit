@@ -545,7 +545,7 @@ if "scraped_df" in st.session_state:
                             
                             with col_sent:
                                 y_max = df_sentiment["Percentage"].max()
-                                y_limit = y_max + 5  # Add small margin so labels don’t get cut
+                                y_limit = y_max + 10  # Add small margin so labels don’t get cut
                                 fig_sent = px.bar(
                                     df_sentiment,
                                     x="Sentiment",
