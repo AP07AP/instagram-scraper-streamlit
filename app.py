@@ -195,9 +195,9 @@ if report_clicked and st.session_state.get("scrape_done", False):
     # -------------------------------
     import sentiment_model
 
-    if "Comments" in df.columns and not df["Raw_Comment"].isna().all():
+    if "Comments" in df.columns and not df["Comments"].isna().all():
         st.info("🧠 Running Sentiment Analysis on Comments...")
-        df = sentiment_model.analyze_comments(df, column="Raw_Comment")
+        df = sentiment_model.analyze_comments(df, column="Comments")
         st.success("✅ Sentiment Analysis Completed!")
 
     st.session_state["scraped_df"] = df
