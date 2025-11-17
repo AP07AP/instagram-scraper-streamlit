@@ -11,4 +11,4 @@ emoji
 tqdm
 openpyxl
 plotly
-accelerate   # new
+#accelerate   # new
