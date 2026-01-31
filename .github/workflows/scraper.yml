@@ -1,4 +1,4 @@
-name: Instagram Scraper (FAST Ubuntu)
+name: Instagram Scraper
 
 on:
   workflow_dispatch:
@@ -21,49 +21,34 @@ on:
 
 jobs:
   scrape:
-    runs-on: ubuntu-latest   # ⭐ MUCH FASTER THAN WINDOWS
+    runs-on: windows-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
     # ------------------------------
-    # Install Chrome + ChromeDriver
-    # ------------------------------
-    - name: Install Chrome
-      run: |
-        sudo apt update
-        sudo apt install -y wget gnupg unzip
-        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-        sudo apt update
-        sudo apt install -y google-chrome-stable
-
-    - name: Install ChromeDriver (Auto-matched to Chrome version)
-      run: |
-        CHROME_VERSION=$(google-chrome --version | cut -d ' ' -f3 | cut -d '.' -f1)
-        DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_VERSION}")
-        wget -N "https://storage.googleapis.com/chrome-for-testing-public/${DRIVER_VERSION}/linux64/chromedriver-linux64.zip"
-        unzip chromedriver-linux64.zip
-        sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
-        sudo chmod +x /usr/local/bin/chromedriver
-
-    # ------------------------------
-    # Install Python & dependencies
+    # Set up Python
     # ------------------------------
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
+    # ------------------------------
+    # 🟢 Cache pip dependencies (Windows path)
+    # ------------------------------
     - name: Cache pip
       uses: actions/cache@v4
       with:
-        path: ~/.cache/pip
+        path: C:\Users\runneradmin\AppData\Local\pip\Cache
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
+    # ------------------------------
+    # Install dependencies
+    # ------------------------------
     - name: Install dependencies
       run: |
         pip install --upgrade pip
@@ -85,7 +70,7 @@ jobs:
         path: "*.csv"
 
     # ------------------------------
-    # Upload screenshots if any
+    # Upload first screenshot if any
     # ------------------------------
     - name: Upload screenshot artifact
       if: always()
@@ -94,6 +79,9 @@ jobs:
         name: click-error-screenshot
         path: click_error.png
 
+    # ------------------------------
+    # Upload second screenshot if any
+    # ------------------------------
     - name: Upload second screenshot artifact
       if: always()
       uses: actions/upload-artifact@v4
