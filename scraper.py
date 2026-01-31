@@ -81,9 +81,9 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
             {"name": "ds_user_id","value": "72782729777", "domain": ".instagram.com", "path": "/"},
             {"name": "ig_did",    "value": "356B55F2-C173-46CA-BF6B-B6A34260D7AD", "domain": ".instagram.com", "path": "/"},
             {"name": "mid",       "value": "aPCMBQALAAEuhO8RpUZ7vfEg8cCZ", "domain": ".instagram.com", "path": "/"},
-            {"name": "rur",       "value": "CCO\05472782729777\0541799573898:01fec05e41f8eaec335cec6de3ddef17a2cade3d82d35feb3c573a6b9051481412fddb7d", "domain": ".instagram.com", "path": "/"},
-            {"name": "sessionid", "value": "72782729777%3AcMbU9XHo207w7Q%3A26%3AAYj1TyfrEqr_suwgBB5nq_qGrvn82wz_sj3XKritdQ", "domain": ".instagram.com", "path": "/"},
-            {"name": "wd",        "value": "150x678", "domain": ".instagram.com", "path": "/"},
+            {"name": "rur",       "value": "CCO\\05472782729777\\0541792582265:01fed7f09310a7dd37f9fec22286bbc198afe6145f400200f80c6c0eb422bfcb5d3356d9", "domain": ".instagram.com", "path": "/"},
+            {"name": "sessionid", "value": "72782729777%3AXy000Mrq0Qnon7%3A3%3AAYgxnnMw8vAY39iGTTPeI3eoN9hZkwUZ4HKEP3my2A", "domain": ".instagram.com", "path": "/"},
+            {"name": "wd",        "value": "679x730", "domain": ".instagram.com", "path": "/"},
         ]
 
         for cookie in cookies:
