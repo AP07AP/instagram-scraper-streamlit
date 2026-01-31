@@ -74,16 +74,40 @@ def scrape_instagram(profile_url, start_date, end_date, username=None):
     # Login via hardcoded cookies
     # ------------------------
     try:
+        # cookies = [
+        #     {"name": "csrftoken", "value": "Rf5IkDkC5ToB7WLxwBJXqBsEhhtacnYH", "domain": ".instagram.com", "path": "/"},
+        #     {"name": "datr",      "value": "BYzwaMODPk1FrOWDRvKdP-MI", "domain": ".instagram.com", "path": "/"},
+        #     {"name": "dpr",       "value": "1.25", "domain": ".instagram.com", "path": "/"},
+        #     {"name": "ds_user_id","value": "72782729777", "domain": ".instagram.com", "path": "/"},
+        #     {"name": "ig_did",    "value": "356B55F2-C173-46CA-BF6B-B6A34260D7AD", "domain": ".instagram.com", "path": "/"},
+        #     {"name": "mid",       "value": "aPCMBQALAAEuhO8RpUZ7vfEg8cCZ", "domain": ".instagram.com", "path": "/"},
+        #     {"name": "rur",       "value": "CCO\\05472782729777\\0541792582265:01fed7f09310a7dd37f9fec22286bbc198afe6145f400200f80c6c0eb422bfcb5d3356d9", "domain": ".instagram.com", "path": "/"},
+        #     {"name": "sessionid", "value": "72782729777%3AXy000Mrq0Qnon7%3A3%3AAYgxnnMw8vAY39iGTTPeI3eoN9hZkwUZ4HKEP3my2A", "domain": ".instagram.com", "path": "/"},
+        #     {"name": "wd",        "value": "679x730", "domain": ".instagram.com", "path": "/"},
+        # ]
         cookies = [
-            {"name": "csrftoken", "value": "Rf5IkDkC5ToB7WLxwBJXqBsEhhtacnYH", "domain": ".instagram.com", "path": "/"},
-            {"name": "datr",      "value": "BYzwaMODPk1FrOWDRvKdP-MI", "domain": ".instagram.com", "path": "/"},
-            {"name": "dpr",       "value": "1.25", "domain": ".instagram.com", "path": "/"},
-            {"name": "ds_user_id","value": "72782729777", "domain": ".instagram.com", "path": "/"},
-            {"name": "ig_did",    "value": "356B55F2-C173-46CA-BF6B-B6A34260D7AD", "domain": ".instagram.com", "path": "/"},
-            {"name": "mid",       "value": "aPCMBQALAAEuhO8RpUZ7vfEg8cCZ", "domain": ".instagram.com", "path": "/"},
-            {"name": "rur",       "value": "CCO\\05472782729777\\0541792582265:01fed7f09310a7dd37f9fec22286bbc198afe6145f400200f80c6c0eb422bfcb5d3356d9", "domain": ".instagram.com", "path": "/"},
-            {"name": "sessionid", "value": "72782729777%3AXy000Mrq0Qnon7%3A3%3AAYgxnnMw8vAY39iGTTPeI3eoN9hZkwUZ4HKEP3my2A", "domain": ".instagram.com", "path": "/"},
-            {"name": "wd",        "value": "679x730", "domain": ".instagram.com", "path": "/"},
+            {"name": "csrftoken", "value": "HdUV4ZKN5nIQOkYsqZeM8M83AhnEKoLW", "domain": ".instagram.com", "path": "/"},
+            {"name": "datr", "value": "75zXaJMeQDUoMv6npuhPoAB3", "domain": ".instagram.com", "path": "/"},
+            {"name": "dpr", "value": "1.25", "domain": ".instagram.com", "path": "/"},
+            {"name": "ds_user_id", "value": "72782729777", "domain": ".instagram.com", "path": "/"},
+            {"name": "ig_did", "value": "1D0FDD83-C229-460E-8712-D093D6B04BD2", "domain": ".instagram.com", "path": "/"},
+            {"name": "ig_nrcb", "value": "1", "domain": ".instagram.com", "path": "/"},
+            {"name": "mid", "value": "aNec7wALAAH8gPLWjjjlGQ4IwrzZ", "domain": ".instagram.com", "path": "/"},
+            {"name": "ps_l", "value": "1", "domain": ".instagram.com", "path": "/"},
+            {"name": "ps_n", "value": "1", "domain": ".instagram.com", "path": "/"},
+            {
+                "name": "rur",
+                "value": "CCO\\05472782729777\\0541801378451:01fe96ec5bf05ccd96093694ef683c8f0940aa0964a92daba92050d65ea76725bb4047a9",
+                "domain": ".instagram.com",
+                "path": "/"
+            },
+            {
+                "name": "sessionid",
+                "value": "72782729777%3AuJv9wAtlFC18q0%3A3%3AAYgVGBk9wQspTIArnwyQ0v8In_-1DCoq3mz1EqIIAA",
+                "domain": ".instagram.com",
+                "path": "/"
+            },
+            {"name": "wd", "value": "1528x151", "domain": ".instagram.com", "path": "/"},
         ]
 
         for cookie in cookies:
